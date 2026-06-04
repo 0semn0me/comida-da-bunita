@@ -373,38 +373,71 @@ function dist(la1,lo1,la2,lo2) {
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 window.onload = () => {
-  document.getElementById('status-gps').innerText = `📍 Buscando ao redor de: ${LOCAL_BASE}`;
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}`)
-    .then(r=>r.json()).then(d=>{
-      if(d&&d.length>0){
-        minhaLat=parseFloat(d[0].lat); minhaLng=parseFloat(d[0].lon);
-        varrer(minhaLat,minhaLng);
-      }
-    });
+  // Tenta GPS real do dispositivo primeiro (mais rápido e preciso)
+  if (navigator.geolocation) {
+    document.getElementById('status-gps').innerText = '📍 Pegando sua localização...';
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        minhaLat = pos.coords.latitude;
+        minhaLng = pos.coords.longitude;
+        document.getElementById('status-gps').innerText = '🔍 Carregando restaurantes próximos...';
+        varrer(minhaLat, minhaLng);
+      },
+      () => usarBairroBase(), // se recusar GPS, usa bairro base
+      { timeout: 6000, maximumAge: 60000 }
+    );
+  } else {
+    usarBairroBase();
+  }
 };
 
-function varrer(lat,lng) {
-  // Overpass "around" = círculo real de 3000m centrado em você
-  const query = `[out:json][timeout:25];
-(
-  node["amenity"~"restaurant|fast_food|cafe|bakery"](around:3000,${lat},${lng});
-);
-out body;`;
-  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+function usarBairroBase() {
+  document.getElementById('status-gps').innerText = `📍 Buscando em: ${LOCAL_BASE}`;
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}&limit=1`)
+    .then(r => r.json())
+    .then(d => {
+      if (d && d.length > 0) {
+        minhaLat = parseFloat(d[0].lat);
+        minhaLng = parseFloat(d[0].lon);
+        varrer(minhaLat, minhaLng);
+      } else {
+        document.getElementById('msg-carregando').innerText = 'Não consegui localizar o bairro base.';
+      }
+    })
+    .catch(() => {
+      document.getElementById('msg-carregando').innerText = 'Sem conexão. Recarregue a página.';
+    });
+}
 
-  fetch(url).then(r=>r.json()).then(d=>{
-    if(d.elements&&d.elements.length){
-      // Filtro extra: garantir que dist real ≤ 3.0 km (segurança dupla)
-      listaLocais = d.elements.filter(l => {
-        const d = dist(lat, lng, parseFloat(l.lat), parseFloat(l.lon));
-        return d <= 3.0;
-      });
+function varrer(lat, lng) {
+  document.getElementById('status-gps').innerText = '🔍 Carregando restaurantes próximos...';
+
+  // Usa POST para evitar problemas com URL longa em mobile
+  const query = `[out:json][timeout:20];(node["amenity"~"restaurant|fast_food|cafe|bakery"](around:3000,${lat},${lng}););out body;`;
+
+  fetch('https://overpass-api.de/api/interpreter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'data=' + encodeURIComponent(query)
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.elements && d.elements.length) {
+      // Filtra por distância real ≤ 3km e ordena do mais perto
+      listaLocais = d.elements
+        .map(l => ({ ...l, _dist: dist(lat, lng, parseFloat(l.lat), parseFloat(l.lon)) }))
+        .filter(l => l._dist <= 3.0)
+        .sort((a, b) => a._dist - b._dist);
+
       renderizar(listaLocais);
-      document.getElementById('status-gps').innerText=`🍿 ${listaLocais.length} opções em até 3km de você!`;
+      document.getElementById('status-gps').innerText = `🍿 ${listaLocais.length} opções em até 3km de você!`;
     } else {
-      document.getElementById('msg-carregando').innerText='Nenhum restaurante encontrado próximo.';
+      document.getElementById('msg-carregando').innerText = 'Nenhum restaurante encontrado próximo.';
     }
-  }).catch(()=>{ document.getElementById('msg-carregando').innerText='Instabilidade na rede. Recarregue.'; });
+  })
+  .catch(() => {
+    document.getElementById('msg-carregando').innerText = 'Erro ao carregar. Recarregue a página.';
+  });
 }
 
 async function renderizar(locais) {
@@ -445,10 +478,10 @@ async function renderizar(locais) {
   const formatados = locais.map(l=>{
     const nome = l.tags.name||'Comércio de Comida';
     const amenity = l.tags.amenity||'restaurant';
-    const d = dist(minhaLat,minhaLng,parseFloat(l.lat),parseFloat(l.lon));
+    const d = l._dist !== undefined ? l._dist : dist(minhaLat,minhaLng,parseFloat(l.lat),parseFloat(l.lon));
     const t = Math.max(2,Math.round(d*3.5));
     return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon, tags:l.tags, bairro:'' };
-  }).sort((a,b)=>a.d-b.d);
+  });
 
   // Renderiza imediatamente (sem bairro) e vai preenchendo conforme as geocodificações chegam
   formatados.forEach(l => criarCard(el, l));
