@@ -3,103 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comida da Bunita - Busca Rápida</title>
+    <title>Comida da Bunita - Inteligente</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
         .modal.active { display: flex; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans pb-10">
+<body class="bg-gray-50 font-sans pb-10">
 
-    <header class="bg-red-500 text-white p-5 text-center shadow-md sticky top-0 z-10">
+    <header class="bg-gradient-to-r from-red-500 to-red-600 text-white p-5 text-center shadow-md sticky top-0 z-10">
         <h1 class="text-xl font-bold">🍕 Comida da Bunita</h1>
-        <p class="text-sm opacity-90" id="status-gps">Digite seu local abaixo para buscar:</p>
+        <p class="text-xs opacity-90 mt-1" id="status-gps">Carregando radar gastronômico...</p>
     </header>
 
-    <div class="p-4 bg-yellow-50 border-b border-yellow-200 text-center shadow-inner">
-        <p class="mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">📍 Onde vocês estão agora?</p>
-        <div class="flex gap-2 max-w-xs mx-auto">
-            <input type="text" id="input-cidade" placeholder="Ex: Vila Augusta, Guarulhos" class="flex-1 px-3 py-2 border rounded-xl bg-white text-gray-800 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500">
-            <button onclick="buscarPorNome()" class="bg-red-500 text-white px-5 py-2 rounded-xl font-bold text-sm active:scale-95 transition shadow">Radar 🔎</button>
-        </div>
+    <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2 border-b border-gray-100">
+        <button onclick="filtrar('todos')" class="bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-xs shadow-sm">Tudo</button>
+        <button onclick="filtrar('fast_food|pizza|burger|lanche')" class="bg-red-50 text-red-700 px-4 py-2 rounded-full font-medium text-xs border border-red-100">🍔 Lanches & Pizza</button>
+        <button onclick="filtrar('restaurant|churrascaria')" class="bg-orange-50 text-orange-700 px-4 py-2 rounded-full font-medium text-xs border border-orange-100">🍛 Prato Feito / Churrasco</button>
+        <button onclick="filtrar('bakery|cafe|doce')" class="bg-pink-50 text-pink-700 px-4 py-2 rounded-full font-medium text-xs border border-pink-100">🍰 Doces & Salgados</button>
+        <button onclick="filtrar('pastel|pastelaria')" class="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-full font-medium text-xs border border-yellow-100">🥟 Pastelarias</button>
     </div>
 
-    <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2">
-        <button onclick="filtrar('todos')" class="bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-sm">Tudo</button>
-        <button onclick="filtrar('fast_food|pizza|burger')" class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium text-sm">🍔 Algo Gordo / Ogro</button>
-        <button onclick="filtrar('restaurant')" class="bg-orange-100 text-orange-700 px-4 py-2 rounded-full font-medium text-sm">🍛 Comida de Verdade</button>
-        <button onclick="filtrar('bakery|cafe')" class="bg-pink-100 text-pink-700 px-4 py-2 rounded-full font-medium text-sm">🍰 Beliscar / Doce</button>
-    </div>
-
-    <main class="p-4 max-w-md mx-auto space-y-4" id="lista-restaurantes">
-        <p class="text-center text-gray-500 py-10" id="msg-carregando">Digite seu bairro ou cidade acima para varrer a região! 🚀</p>
+    <main class="p-4 max-w-md mx-auto space-y-3" id="lista-restaurantes">
+        <p class="text-center text-gray-500 py-10" id="msg-carregando">Sintonizando com o bairro...</p>
     </main>
 
     <div id="modal-cardapio" class="modal" onclick="fecharModal()">
-        <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-4 shadow-xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center border-b pb-3">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl border border-gray-100 animate-fade-in" onclick="event.stopPropagation()">
+            
+            <div class="flex justify-between items-start border-b border-gray-100 pb-4">
                 <div>
-                    <h2 id="modal-titulo" class="text-lg font-bold text-gray-900">Nome do Local</h2>
-                    <p id="modal-tipo" class="text-xs text-gray-500 font-mono"></p>
+                    <h2 id="modal-titulo" class="text-xl font-extrabold text-gray-900 tracking-tight">Nome</h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="modal-preco" class="text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
+                        <span id="modal-tipo" class="text-xs text-gray-500 font-medium"></span>
+                    </div>
                 </div>
-                <button onclick="fecharModal()" class="text-gray-400 text-2xl font-bold">&times;</button>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-1">&times;</button>
             </div>
 
-            <p class="text-sm text-gray-600">Use os atalhos automáticos abaixo para ver fotos do cardápio ou abrir nos apps:</p>
-
             <div class="space-y-3 pt-2">
-                <a id="btn-ifood" href="#" target="_blank" class="block w-full bg-red-600 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-red-700">
-                    🎯 Buscar no iFood / Comparar Preço
+                <a id="btn-ifood" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#EA1D2C] text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-[0.98]">
+                    <span class="text-lg">🎯</span> Abrir no App do iFood
                 </a>
-                <a id="btn-google" href="#" target="_blank" class="block w-full bg-blue-500 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-blue-600">
-                    📸 Ver Cardápio & Fotos no Google
+                
+                <a id="btn-google" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#1A73E8] text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-600 transition active:scale-[0.98]">
+                    <span class="text-lg">📸</span> Ver Cardápio e Fotos (Google)
                 </a>
-                <a id="btn-telefone" href="#" class="block w-full bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-green-600">
-                    📞 Ligar para o Local
-                </a>
+
+                <div id="info-percurso" class="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center text-xs text-gray-600 font-medium">
+                    🚗 Tempo estimado: <span id="modal-tempo" class="text-gray-900 font-bold"></span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // COLOQUE SEU BAIRRO / CIDADE BASE AQUI PARA FACILITAR A BUSCA INICIAL AUTOMÁTICA
+        const LOCAL_BASE = "Vila Augusta, Guarulhos"; 
+        
         let listaLocais = [];
+        let minhaLat = 0;
+        let minhaLng = 0;
 
-        // Tenta o GPS em background por apenas 2 segundos. Se falhar, avisa para usar a barra.
         window.onload = function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(varrerBairroOpenStreetMap, null, {timeout: 2000});
-            }
-        };
-
-        // Função que busca as coordenadas com base no que você digitou
-        function buscarPorNome() {
-            const query = document.getElementById('input-cidade').value;
-            if(!query) return alert("Digite o nome da cidade ou bairro!");
+            document.getElementById('status-gps').innerText = `📍 Buscando ao redor de: ${LOCAL_BASE}`;
             
-            document.getElementById('msg-carregando').innerText = "Localizando endereço...";
-            
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+            // Primeiro localiza as coordenadas do seu bairro pré-definido para não falhar
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}`)
                 .then(r => r.json())
                 .then(dados => {
                     if(dados && dados.length > 0) {
-                        const local = { coords: { latitude: parseFloat(dados[0].lat), longitude: parseFloat(dados[0].lon) } };
-                        varrerBairroOpenStreetMap(local);
+                        minhaLat = parseFloat(dados[0].lat);
+                        minhaLng = parseFloat(dados[0].lon);
+                        varrerBairro(minhaLat, minhaLng);
                     } else {
-                        document.getElementById('msg-carregando').innerText = "Não encontramos essa região. Tente digitar de outra forma (Ex: Centro, Cidade).";
+                        document.getElementById('msg-carregando').innerText = "Erro ao configurar bairro padrão.";
                     }
-                }).catch(() => {
-                    document.getElementById('msg-carregando').innerText = "Erro ao buscar local. Tente novamente.";
                 });
-        }
+        };
 
-        // Faz a varredura real de ~3km ao redor do local encontrado
-        function varrerBairroOpenStreetMap(posicao) {
-            const lat = posicao.coords.latitude;
-            const lng = posicao.coords.longitude;
-            document.getElementById('status-gps').innerText = "📡 Varredura ativa na região!";
-            document.getElementById('msg-carregando').innerText = "Buscando comércios de comida por perto...";
-
+        function varrerBairro(lat, lng) {
+            // Raio de varredura amplo de ~3km
             const minLat = lat - 0.025;
             const maxLat = lat + 0.025;
             const minLng = lng - 0.028;
@@ -108,55 +94,113 @@
             const url = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"~"restaurant|fast_food|cafe|bakery"](${minLat},${minLng},${maxLat},${maxLng});out;`;
 
             fetch(url)
-                .then(response => response.json())
+                .then(r => r.json())
                 .then(data => {
                     if (data.elements && data.elements.length > 0) {
                         listaLocais = data.elements;
                         renderizarLista(listaLocais);
+                        document.getElementById('status-gps').innerText = `🍿 ${listaLocais.length} opções encontradas perto de você!`;
                     } else {
-                        document.getElementById('msg-carregando').innerText = "Nenhum restaurante cadastrado nessa região no mapa. Tente outro bairro vizinho.";
+                        document.getElementById('msg-carregando').innerText = "Nenhum restaurante listado mapeado aqui.";
                     }
-                })
-                .catch(() => {
-                    document.getElementById('msg-carregando').innerText = "Erro no servidor de mapas. Aperte o botão de busca novamente.";
+                }).catch(() => {
+                    document.getElementById('msg-carregando').innerText = "Instabilidade na rede. Recarregue a página.";
                 });
+        }
+
+        // Função Haversine Matemática para calcular distância real em linha reta entre os pontos
+        function calcularDistanciaReal(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Raio da Terra em km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; 
+        }
+
+        // Retorna a foto perfeita baseada no que vende no local
+        function descobrirFotoEPreco(nome, tipoOriginal) {
+            const n = nome.toLowerCase();
+            let foto = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'; // Geral / PF
+            let preco = { txt: "Médio 💰 Michael", cor: "bg-orange-100 text-orange-800", nivel: 2 };
+
+            if(n.includes('pizza') || n.includes('pizzaria')) {
+                foto = 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200';
+                preco = { txt: "Médio 💰💰", cor: "bg-orange-100 text-orange-800", nivel: 2 };
+            } else if(n.includes('burger') || n.includes('hamburguer') || n.includes('bob') || n.includes('mcdonald')) {
+                foto = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200';
+                preco = { txt: "Barato/Médio 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
+            } else if(n.includes('pastel') || n.includes('pastelaria')) {
+                foto = 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=200'; // Imagem pastel aproximada
+                preco = { txt: "Econômico 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
+            } else if(n.includes('dog') || n.includes('cachorro quente') || n.includes('dogão')) {
+                foto = 'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=200';
+                preco = { txt: "Econômico 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
+            } else if(n.includes('churrasco') || n.includes('churrascaria') || n.includes('steak')) {
+                foto = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200';
+                preco = { txt: "Mais Caro 💰💰💰", cor: "bg-red-100 text-red-800", nivel: 3 };
+            } else if(tipoOriginal === 'bakery' || n.includes('pão') || n.includes('doceria')) {
+                foto = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200';
+                preco = { txt: "Acessível 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
+            }
+            
+            return { foto, preco };
         }
 
         function renderizarLista(locais) {
             const container = document.getElementById('lista-restaurantes');
             container.innerHTML = "";
 
-            locais.forEach(local => {
-                const nome = local.tags.name || "Estabelecimento sem Nome";
-                const tipoOriginal = local.tags.amenity || "comida";
+            // Organiza os locais calculando as distâncias reais
+            let locaisFormatados = locais.map(local => {
+                const nome = local.tags.name || "Comércio de Comida";
+                const tipoOriginal = local.tags.amenity || "restaurant";
+                const dist = calcularDistanciaReal(minhaLat, minhaLng, parseFloat(local.lat), parseFloat(local.lon));
                 
-                let tipoTraduzido = "🍛 Restaurante / Comida";
-                if(tipoOriginal === 'fast_food') tipoTraduzido = "🍔 Lanche / Fast Food";
-                if(tipoOriginal === 'bakery') tipoTraduzido = "🍰 Padaria / Doce";
-                if(tipoOriginal === 'cafe') tipoTraduzido = "☕ Café / Sobremesa";
+                // Cálculo estimado de tempo (Média de 3 minutos por quilômetro de carro no bairro)
+                const tempoMinutos = Math.max(2, Math.round(dist * 3.5));
 
-                const fotosPadrao = [
-                    'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150',
-                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150',
-                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'
-                ];
-                const fotoSorteada = fotosPadrao[Math.floor(Math.random() * fotosPadrao.length)];
+                const meta = descobrirFotoEPreco(nome, tipoOriginal);
 
-                const nomeEscapado = nome.replace(/'/g, "\\'");
-                const telefone = local.tags.phone || local.tags["contact:phone"] || "";
+                return {
+                    nome,
+                    tipoOriginal,
+                    distancia: dist,
+                    tempo: tempoMinutos,
+                    foto: meta.foto,
+                    preco: meta.preco,
+                    lat: local.lat,
+                    lon: local.lon
+                };
+            });
 
+            // Ordena do mais perto para o mais longe automaticamente
+            locaisFormatados.sort((a, b) => a.distancia - b.distancia);
+
+            locaisFormatados.forEach(local => {
+                const nomeEscapado = local.nome.replace(/'/g, "\\'");
+                
                 container.innerHTML += `
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 card-restaurante cursor-pointer hover:bg-gray-50 transition" 
-                         data-tipo="${tipoOriginal}" data-nome="${nome.toLowerCase()}"
-                         onclick="abrirOpcoes('${nomeEscapado}', '${tipoTraduzido}', '${telefone}')">
-                        <div class="flex p-3 gap-3">
-                            <img src="${fotoSorteada}" class="w-16 h-16 rounded-lg object-cover bg-gray-100 flex-shrink-0">
-                            <div class="flex-1 flex flex-col justify-between min-w-0">
-                                <div>
-                                    <h3 class="font-bold text-gray-800 text-sm leading-tight truncate">${nome}</h3>
-                                    <p class="text-xs text-gray-400 mt-0.5">${tipoTraduzido}</p>
+                    <div class="bg-white rounded-xl shadow-xs p-3 flex gap-3 border border-gray-100 card-restaurante cursor-pointer active:bg-gray-50 transition"
+                         data-tipo="${local.tipoOriginal}" data-nome="${local.nome.toLowerCase()}"
+                         onclick="abrirOpcoes('${nomeEscapado}', '${local.preco.txt}', '${local.preco.cor}', '${local.distancia.toFixed(1)} km', '${local.tempo} min de carro')">
+                        
+                        <img src="${local.foto}" class="w-16 h-16 rounded-lg object-cover bg-gray-50 my-auto flex-shrink-0">
+                        
+                        <div class="flex-1 min-w-0 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between gap-1">
+                                    <h3 class="font-bold text-gray-800 text-sm truncate pr-2">${local.nome}</h3>
+                                    <span class="text-[10px] font-bold ${local.preco.cor} px-2 py-0.5 rounded-full flex-shrink-0">${local.preco.txt.split(' ')[0]}</span>
                                 </div>
-                                <span class="text-[10px] font-bold text-green-600">✓ Encontrado próximo</span>
+                                <p class="text-[11px] text-gray-400 mt-0.5 uppercase font-semibold tracking-wider">${local.tipoOriginal.replace('_', ' ')}</p>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-xs text-gray-500 mt-1 font-medium">
+                                <span>📍 à ${local.distancia.toFixed(1)} km</span>
+                                <span class="text-gray-700 font-semibold">🕒 ~${local.tempo} min</span>
                             </div>
                         </div>
                     </div>
@@ -168,34 +212,34 @@
             const cards = document.querySelectorAll('.card-restaurante');
             cards.forEach(card => {
                 if (categoria === 'todos') {
-                    card.style.display = 'block';
+                    card.style.display = 'flex';
                     return;
                 }
                 const tipoCard = card.getAttribute('data-tipo');
+                const nomeCard = card.getAttribute('data-nome');
                 const regex = new RegExp(categoria);
-                if (regex.test(tipoCard)) {
-                    card.style.display = 'block';
+                
+                if (regex.test(tipoCard) || regex.test(nomeCard)) {
+                    card.style.display = 'flex';
                 } else {
                     card.style.display = 'none';
                 }
             });
         }
 
-        function abrirOpcoes(nome, tipo, telefone) {
+        function abrirOpcoes(nome, precoTxt, precoCor, distancia, tempo) {
             document.getElementById('modal-titulo').innerText = nome;
-            document.getElementById('modal-tipo').innerText = tipo;
+            
+            const elPreco = document.getElementById('modal-preco');
+            elPreco.innerText = precoTxt;
+            elPreco.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${precoCor}`;
 
+            document.getElementById('modal-tipo').innerText = `Distância: ${distancia}`;
+            document.getElementById('modal-tempo').innerText = tempo;
+
+            // Links automáticos ultra precisos
             document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${encodeURIComponent(nome)}`;
-            document.getElementById('btn-google').href = `https://www.google.com/search?q=${encodeURIComponent(nome + " restaurante cardapio")}`;
-
-            const btnTel = document.getElementById('btn-telefone');
-            if(telefone) {
-                btnTel.href = `tel:${telefone}`;
-                btnTel.innerText = `📞 Ligar para o Local (${telefone})`;
-                btnTel.style.display = 'block';
-            } else {
-                btnTel.style.display = 'none';
-            }
+            document.getElementById('btn-google').href = `https://www.google.com/search?q=${encodeURIComponent(nome + " cardapio menu fotos")}`;
 
             document.getElementById('modal-cardapio').classList.add('active');
         }
