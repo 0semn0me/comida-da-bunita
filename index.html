@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comida da Bunita - Varredura Gratuita</title>
+    <title>Comida da Bunita - Busca Rápida</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
@@ -14,8 +14,16 @@
 
     <header class="bg-red-500 text-white p-5 text-center shadow-md sticky top-0 z-10">
         <h1 class="text-xl font-bold">🍕 Comida da Bunita</h1>
-        <p class="text-sm opacity-90" id="status-gps">Buscando sua localização...</p>
+        <p class="text-sm opacity-90" id="status-gps">Digite seu local abaixo para buscar:</p>
     </header>
+
+    <div class="p-4 bg-yellow-50 border-b border-yellow-200 text-center shadow-inner">
+        <p class="mb-2 text-xs font-bold text-gray-700 uppercase tracking-wider">📍 Onde vocês estão agora?</p>
+        <div class="flex gap-2 max-w-xs mx-auto">
+            <input type="text" id="input-cidade" placeholder="Ex: Vila Augusta, Guarulhos" class="flex-1 px-3 py-2 border rounded-xl bg-white text-gray-800 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+            <button onclick="buscarPorNome()" class="bg-red-500 text-white px-5 py-2 rounded-xl font-bold text-sm active:scale-95 transition shadow">Radar 🔎</button>
+        </div>
+    </div>
 
     <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2">
         <button onclick="filtrar('todos')" class="bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-sm">Tudo</button>
@@ -25,7 +33,7 @@
     </div>
 
     <main class="p-4 max-w-md mx-auto space-y-4" id="lista-restaurantes">
-        <p class="text-center text-gray-500 py-10" id="msg-carregando">Aguardando GPS para iniciar a varredura...</p>
+        <p class="text-center text-gray-500 py-10" id="msg-carregando">Digite seu bairro ou cidade acima para varrer a região! 🚀</p>
     </main>
 
     <div id="modal-cardapio" class="modal" onclick="fecharModal()">
@@ -57,32 +65,46 @@
     <script>
         let listaLocais = [];
 
-        // Inicializa o GPS do celular assim que abre a página
+        // Tenta o GPS em background por apenas 2 segundos. Se falhar, avisa para usar a barra.
         window.onload = function() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(varrerBairroOpenStreetMap, (erro) => {
-                    document.getElementById('status-gps').innerText = "❌ GPS Negado";
-                    document.getElementById('msg-carregando').innerText = "Por favor, autorize a localização para o site varrer seu bairro.";
-                });
-            } else {
-                document.getElementById('status-gps').innerText = "❌ Sem suporte a GPS";
+                navigator.geolocation.getCurrentPosition(varrerBairroOpenStreetMap, null, {timeout: 2000});
             }
         };
 
-        // Varre a região usando a API pública e gratuita do OpenStreetMap (Overpass)
+        // Função que busca as coordenadas com base no que você digitou
+        function buscarPorNome() {
+            const query = document.getElementById('input-cidade').value;
+            if(!query) return alert("Digite o nome da cidade ou bairro!");
+            
+            document.getElementById('msg-carregando').innerText = "Localizando endereço...";
+            
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(dados => {
+                    if(dados && dados.length > 0) {
+                        const local = { coords: { latitude: parseFloat(dados[0].lat), longitude: parseFloat(dados[0].lon) } };
+                        varrerBairroOpenStreetMap(local);
+                    } else {
+                        document.getElementById('msg-carregando').innerText = "Não encontramos essa região. Tente digitar de outra forma (Ex: Centro, Cidade).";
+                    }
+                }).catch(() => {
+                    document.getElementById('msg-carregando').innerText = "Erro ao buscar local. Tente novamente.";
+                });
+        }
+
+        // Faz a varredura real de ~3km ao redor do local encontrado
         function varrerBairroOpenStreetMap(posicao) {
             const lat = posicao.coords.latitude;
             const lng = posicao.coords.longitude;
-            document.getElementById('status-gps').innerText = "📍 Localização Fixada! Escaneando raio de 3km...";
-            document.getElementById('msg-carregando').innerText = "Buscando restaurantes reais perto de você...";
+            document.getElementById('status-gps').innerText = "📡 Varredura ativa na região!";
+            document.getElementById('msg-carregando').innerText = "Buscando comércios de comida por perto...";
 
-            // Raio de 0.03 graus (~3km) ao redor das coordenadas
-            const minLat = lat - 0.027;
-            const maxLat = lat + 0.027;
-            const minLng = lng - 0.030;
-            const maxLng = lng + 0.030;
+            const minLat = lat - 0.025;
+            const maxLat = lat + 0.025;
+            const minLng = lng - 0.028;
+            const maxLng = lng + 0.028;
 
-            // Busca por nós de alimentação cadastrados na região
             const url = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"~"restaurant|fast_food|cafe|bakery"](${minLat},${minLng},${maxLat},${maxLng});out;`;
 
             fetch(url)
@@ -92,34 +114,31 @@
                         listaLocais = data.elements;
                         renderizarLista(listaLocais);
                     } else {
-                        document.getElementById('msg-carregando').innerText = "Nenhum local mapeado no OpenStreetMap dessa região.";
+                        document.getElementById('msg-carregando').innerText = "Nenhum restaurante cadastrado nessa região no mapa. Tente outro bairro vizinho.";
                     }
                 })
                 .catch(() => {
-                    document.getElementById('msg-carregando').innerText = "Erro ao conectar com o servidor do mapa gratuito. Tente atualizar.";
+                    document.getElementById('msg-carregando').innerText = "Erro no servidor de mapas. Aperte o botão de busca novamente.";
                 });
         }
 
-        // Monta os cards dos restaurantes reais na tela
         function renderizarLista(locais) {
             const container = document.getElementById('lista-restaurantes');
             container.innerHTML = "";
 
             locais.forEach(local => {
-                const nome = local.tags.name || "Restaurante sem Nome";
+                const nome = local.tags.name || "Estabelecimento sem Nome";
                 const tipoOriginal = local.tags.amenity || "comida";
                 
-                // Tradução simples do tipo para exibição
-                let tipoTraduzido = "🍛 Restaurante";
+                let tipoTraduzido = "🍛 Restaurante / Comida";
                 if(tipoOriginal === 'fast_food') tipoTraduzido = "🍔 Lanche / Fast Food";
                 if(tipoOriginal === 'bakery') tipoTraduzido = "🍰 Padaria / Doce";
                 if(tipoOriginal === 'cafe') tipoTraduzido = "☕ Café / Sobremesa";
 
-                // Ícones de comida aleatórios para ilustrar o card
                 const fotosPadrao = [
-                    'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150', // pizza
-                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150', // burger
-                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'  // prato
+                    'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150',
+                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150',
+                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'
                 ];
                 const fotoSorteada = fotosPadrao[Math.floor(Math.random() * fotosPadrao.length)];
 
@@ -127,17 +146,17 @@
                 const telefone = local.tags.phone || local.tags["contact:phone"] || "";
 
                 container.innerHTML += `
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 card-restaurante cursor-pointer" 
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 card-restaurante cursor-pointer hover:bg-gray-50 transition" 
                          data-tipo="${tipoOriginal}" data-nome="${nome.toLowerCase()}"
                          onclick="abrirOpcoes('${nomeEscapado}', '${tipoTraduzido}', '${telefone}')">
                         <div class="flex p-3 gap-3">
-                            <img src="${fotoSorteada}" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
-                            <div class="flex-1 flex flex-col justify-between">
+                            <img src="${fotoSorteada}" class="w-16 h-16 rounded-lg object-cover bg-gray-100 flex-shrink-0">
+                            <div class="flex-1 flex flex-col justify-between min-w-0">
                                 <div>
-                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">${nome}</h3>
+                                    <h3 class="font-bold text-gray-800 text-sm leading-tight truncate">${nome}</h3>
                                     <p class="text-xs text-gray-400 mt-0.5">${tipoTraduzido}</p>
                                 </div>
-                                <span class="text-[10px] font-bold text-green-600">✓ Disponível no raio de 3km</span>
+                                <span class="text-[10px] font-bold text-green-600">✓ Encontrado próximo</span>
                             </div>
                         </div>
                     </div>
@@ -166,7 +185,6 @@
             document.getElementById('modal-titulo').innerText = nome;
             document.getElementById('modal-tipo').innerText = tipo;
 
-            // Links dinâmicos de busca automática
             document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${encodeURIComponent(nome)}`;
             document.getElementById('btn-google').href = `https://www.google.com/search?q=${encodeURIComponent(nome + " restaurante cardapio")}`;
 
