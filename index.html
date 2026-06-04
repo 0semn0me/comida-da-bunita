@@ -190,16 +190,14 @@
   }
   .app-btn:active { transform:scale(.94); }
 
-  /* iFood */
-  .btn-ifood { background:#ea1d2c; box-shadow:0 4px 14px rgba(234,29,44,.35); }
-  /* Keeta */
-  .btn-keeta { background:#ffe600; box-shadow:0 4px 14px rgba(255,230,0,.45); }
-  /* 99Food */
-  .btn-99    { background:#ffc200; box-shadow:0 4px 14px rgba(255,194,0,.45); }
+  /* iFood: fundo BRANCO com borda vermelha sutil */
+  .btn-ifood { background:#ffffff; box-shadow:0 3px 12px rgba(0,0,0,.12); border:1.5px solid #e8e8e8; }
+  /* Keeta: fundo AMARELO marca */
+  .btn-keeta { background:#ffe600; box-shadow:0 3px 12px rgba(255,230,0,.4); }
+  /* 99Food: fundo AMARELO-LARANJA marca */
+  .btn-99    { background:#ffcc00; box-shadow:0 3px 12px rgba(255,204,0,.4); }
 
   .app-logo { width:40px; height:40px; object-fit:contain; border-radius:8px; }
-
-  /* SVG inline logos */
   .logo-svg { width:32px; height:32px; }
 
   .modal-distancia {
@@ -262,31 +260,56 @@
 
     <div id="m-preco-bar" class="modal-preco-bar bar-medio">💰 Médio / Mei Caro — até R$60</div>
 
+    <!-- Linha 1: iFood + Keeta + 99Food -->
     <div class="modal-apps">
-      <!-- iFood: vermelho + letras "ifood" estilo real + sorriso/seta -->
+
+      <!-- iFood: fundo BRANCO, logo vermelho -->
       <a id="btn-ifood" href="#" target="_blank" class="app-btn btn-ifood" title="iFood">
-        <svg viewBox="0 0 110 44" width="80" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- "i" -->
-          <text x="2" y="34" font-family="Arial Black,Helvetica,sans-serif" font-size="36" font-weight="900" fill="white" letter-spacing="-1">ifood</text>
-          <!-- sorriso/seta embaixo -->
-          <path d="M18 40 Q46 52 72 40" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <polygon points="72,37 78,41 71,45" fill="white"/>
+        <svg viewBox="0 0 140 70" width="90" height="36">
+          <!-- letras "ifood" estilo marca – peso black, vermelho -->
+          <text x="4" y="50" font-family="Arial Black,Impact,sans-serif" font-size="52" font-weight="900" fill="#ea1d2c" letter-spacing="-2">ifood</text>
+          <!-- sorriso/seta curva embaixo -->
+          <path d="M22 58 Q68 76 108 56" stroke="#ea1d2c" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path d="M102 52 L112 58 L100 62 Z" fill="#ea1d2c"/>
         </svg>
       </a>
-      <!-- Keeta: amarelo + texto "keeta" minúsculo bold -->
+
+      <!-- Keeta: fundo AMARELO, logo preto -->
       <a id="btn-keeta" href="#" target="_blank" class="app-btn btn-keeta" title="Keeta">
-        <svg viewBox="0 0 100 44" width="76" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <text x="2" y="32" font-family="Arial Rounded MT Bold,Arial Black,sans-serif" font-size="30" font-weight="900" fill="#1a1a1a" letter-spacing="-0.5">keeta</text>
-          <!-- sorriso pontilhado -->
-          <path d="M8 38 Q38 50 72 38" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="4 3"/>
+        <svg viewBox="0 0 130 68" width="84" height="34">
+          <!-- "keeta" bold arredondado -->
+          <text x="4" y="46" font-family="Arial Rounded MT Bold,Arial Black,Verdana,sans-serif" font-size="44" font-weight="900" fill="#111" letter-spacing="-1">keeta</text>
+          <!-- sorriso pontilhado / garfo -->
+          <path d="M12 54 Q55 72 108 52" stroke="#111" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-dasharray="5 4"/>
+          <circle cx="112" cy="51" r="3.5" fill="#111"/>
+          <circle cx="120" cy="54" r="3.5" fill="#111"/>
         </svg>
       </a>
-      <!-- 99Food: amarelo + "99" grande em preto + "Food" menor -->
+
+      <!-- 99Food: fundo AMARELO-DOURADO, logo preto -->
       <a id="btn-99" href="#" target="_blank" class="app-btn btn-99" title="99Food">
-        <svg viewBox="0 0 72 54" width="52" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <text x="2" y="36" font-family="Arial Black,Helvetica,sans-serif" font-size="38" font-weight="900" fill="#1a1a1a" letter-spacing="-2">99</text>
-          <text x="8" y="50" font-family="Arial Black,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#1a1a1a" letter-spacing="1">Food</text>
+        <svg viewBox="0 0 80 68" width="52" height="44">
+          <!-- "99" grande -->
+          <text x="2" y="46" font-family="Arial Black,Impact,sans-serif" font-size="50" font-weight="900" fill="#111" letter-spacing="-4">99</text>
+          <!-- "Food" centralizado embaixo -->
+          <text x="10" y="62" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="#111" letter-spacing="1.5">Food</text>
         </svg>
+      </a>
+
+    </div>
+
+    <!-- Linha 2: Google -->
+    <div style="padding:10px 20px 0;">
+      <a id="btn-google" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:14px;background:#fff;border:1.5px solid #e0e0e0;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .15s;" title="Ver no Google">
+        <!-- Google G colorido -->
+        <svg width="22" height="22" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          <path fill="none" d="M0 0h48v48H0z"/>
+        </svg>
+        <span style="font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;color:#333;">Ver Cardápio &amp; Fotos no Google</span>
       </a>
     </div>
 
@@ -374,47 +397,94 @@ function varrer(lat,lng) {
   }).catch(()=>{ document.getElementById('msg-carregando').innerText='Instabilidade na rede. Recarregue.'; });
 }
 
-function renderizar(locais) {
+async function renderizar(locais) {
   const el = document.getElementById('lista');
   el.innerHTML='';
+
+  // Cache de bairros já buscados por lat,lon arredondado
+  const bairroCache = {};
+
+  async function getBairro(lat, lon, tagsData) {
+    // Primeiro tenta tags do OSM
+    const tagBairro = tagsData['addr:suburb'] || tagsData['addr:neighbourhood'] ||
+                      tagsData['addr:quarter'] || tagsData['addr:city_district'] || '';
+    if (tagBairro) return tagBairro;
+
+    // Chave arredondada para cache (evita chamadas duplicadas)
+    const key = parseFloat(lat).toFixed(3) + ',' + parseFloat(lon).toFixed(3);
+    if (bairroCache[key] !== undefined) return bairroCache[key];
+
+    // Busca reversa Nominatim
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=16&addressdetails=1`);
+      const d = await r.json();
+      const a = d.address || {};
+      const b = a.suburb || a.neighbourhood || a.quarter || a.city_district || a.village || a.city || '';
+      bairroCache[key] = b;
+      return b;
+    } catch(e) {
+      bairroCache[key] = '';
+      return '';
+    }
+  }
 
   const formatados = locais.map(l=>{
     const nome = l.tags.name||'Comércio de Comida';
     const amenity = l.tags.amenity||'restaurant';
     const d = dist(minhaLat,minhaLng,parseFloat(l.lat),parseFloat(l.lon));
     const t = Math.max(2,Math.round(d*3.5));
-    const bairro = l.tags['addr:suburb'] || l.tags['addr:neighbourhood'] || l.tags['addr:quarter'] || l.tags['addr:city'] || '';
-    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon, bairro };
+    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon, tags:l.tags, bairro:'' };
   }).sort((a,b)=>a.d-b.d);
 
-  formatados.forEach(l=>{
-    const div=document.createElement('div');
-    div.className=`card preco-${l.preco.nivel}`;
-    div.setAttribute('data-tipo',l.amenity);
-    div.setAttribute('data-nome',l.nome.toLowerCase());
+  // Renderiza imediatamente (sem bairro) e vai preenchendo conforme as geocodificações chegam
+  formatados.forEach(l => criarCard(el, l));
 
-    const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
-    const subLabel = l.bairro ? '📌 ' + l.bairro : tipoLabel;
+  // Busca bairros em paralelo (máx 3 simultâneas para não estourar rate limit)
+  const chunks = [];
+  for (let i = 0; i < formatados.length; i += 3) chunks.push(formatados.slice(i, i+3));
+  for (const chunk of chunks) {
+    await Promise.all(chunk.map(async l => {
+      l.bairro = await getBairro(l.lat, l.lon, l.tags);
+      // Atualiza o card já renderizado
+      const cardEl = document.querySelector(`.card[data-id="${l.lat}_${l.lon}"]`);
+      if (cardEl) {
+        const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
+        const subLabel = l.bairro ? '📌 ' + l.bairro : tipoLabel;
+        const tipoEl = cardEl.querySelector('.card-tipo');
+        if (tipoEl) tipoEl.textContent = subLabel;
+      }
+    }));
+    await new Promise(r => setTimeout(r, 300)); // pequena pausa entre grupos
+  }
+}
 
-    div.innerHTML=`
-      <img class="card-img" src="${l.foto}" alt="${l.nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
-      <div class="card-body">
-        <div class="card-top">
-          <div>
-            <div class="card-nome">${l.nome}</div>
-            <div class="card-tipo">${subLabel}</div>
-          </div>
-          <div class="preco-dot dot-${l.preco.nivel}"></div>
+function criarCard(container, l) {
+  const div=document.createElement('div');
+  div.className=`card preco-${l.preco.nivel}`;
+  div.setAttribute('data-tipo',l.amenity);
+  div.setAttribute('data-nome',l.nome.toLowerCase());
+  div.setAttribute('data-id', `${l.lat}_${l.lon}`);
+
+  const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
+
+  div.innerHTML=`
+    <img class="card-img" src="${l.foto}" alt="${l.nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
+    <div class="card-body">
+      <div class="card-top">
+        <div>
+          <div class="card-nome">${l.nome}</div>
+          <div class="card-tipo">${tipoLabel}</div>
         </div>
-        <div class="card-bottom">
-          <span>📍 ${l.d.toFixed(1)} km</span>
-          <span>🕒 ~${l.t} min</span>
-        </div>
-      </div>`;
+        <div class="preco-dot dot-${l.preco.nivel}"></div>
+      </div>
+      <div class="card-bottom">
+        <span>📍 ${l.d.toFixed(1)} km</span>
+        <span>🕒 ~${l.t} min</span>
+      </div>
+    </div>`;
 
-    div.onclick=()=>abrirModal(l);
-    el.appendChild(div);
-  });
+  div.onclick=()=>abrirModal(l);
+  container.appendChild(div);
 }
 
 // ── Filtro ───────────────────────────────────────────────────────────────────
@@ -442,9 +512,11 @@ function abrirModal(l) {
   document.getElementById('m-distancia').innerHTML = `📍 ${l.d.toFixed(1)} km de distância &nbsp;·&nbsp; 🕒 ~${l.t} min de carro`;
 
   const q = encodeURIComponent(l.nome);
-  document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${q}`;
-  document.getElementById('btn-keeta').href = `https://keeta.com.br/busca?q=${q}`;
-  document.getElementById('btn-99').href    = `https://www.99app.com/food?q=${q}`;
+  const qLocal = encodeURIComponent(l.nome + ' Guarulhos');
+  document.getElementById('btn-ifood').href  = `https://www.ifood.com.br/busca?q=${q}`;
+  document.getElementById('btn-keeta').href  = `https://keeta.com.br/busca?q=${q}`;
+  document.getElementById('btn-99').href     = `https://www.99app.com/food?q=${q}`;
+  document.getElementById('btn-google').href = `https://www.google.com/search?q=${qLocal}+cardapio+fotos`;
 
   document.getElementById('modal').classList.add('active');
   document.body.style.overflow='hidden';
