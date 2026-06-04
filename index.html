@@ -1,252 +1,451 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comida da Bunita - Inteligente</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
-        .modal.active { display: flex; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comida da Bunita</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  :root {
+    --red:    #e8272a;
+    --bg:     #f2f2f7;
+    --white:  #ffffff;
+    --card:   #ffffff;
+    --text:   #1c1c1e;
+    --sub:    #8e8e93;
+    --border: #e5e5ea;
+
+    /* faixas de preço */
+    --barato:   #34c759;
+    --medio:    #ff9f0a;
+    --pesado:   #ff3b30;
+  }
+
+  body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ──────── HEADER ──────── */
+  header {
+    background: linear-gradient(135deg, #c0181b 0%, #e8272a 60%, #ff4e4e 100%);
+    color:#fff;
+    padding: 18px 16px 14px;
+    text-align:center;
+    position:sticky; top:0; z-index:20;
+    box-shadow: 0 2px 20px rgba(232,39,42,.35);
+  }
+  header h1 { font-size:1.3rem; font-weight:900; letter-spacing:-.3px; }
+  #status-gps { font-size:.72rem; opacity:.85; margin-top:3px; font-weight:600; }
+
+  /* ──────── FILTROS ──────── */
+  #filtros {
+    background:var(--white);
+    border-bottom:1px solid var(--border);
+    padding:10px 12px;
+    display:flex; gap:8px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    position:sticky; top:65px; z-index:19;
+    scrollbar-width:none;
+  }
+  #filtros::-webkit-scrollbar { display:none; }
+
+  .filtro-btn {
+    flex-shrink:0;
+    padding:7px 14px;
+    border-radius:20px;
+    border:none;
+    font-family:'Nunito',sans-serif;
+    font-size:.78rem; font-weight:700;
+    cursor:pointer; transition:all .18s;
+    background:#f2f2f7; color:#555;
+  }
+  .filtro-btn.active, .filtro-btn:active {
+    background:var(--red); color:#fff;
+    box-shadow:0 2px 10px rgba(232,39,42,.3);
+  }
+
+  /* ──────── LISTA ──────── */
+  #lista { padding:12px; max-width:500px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+
+  .card {
+    background:var(--card);
+    border-radius:16px;
+    overflow:hidden;
+    display:flex;
+    box-shadow:0 1px 6px rgba(0,0,0,.07);
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s;
+    border:1px solid var(--border);
+    position:relative;
+  }
+  .card:active { transform:scale(.98); box-shadow:0 1px 3px rgba(0,0,0,.06); }
+
+  /* faixa de preço colorida na borda esquerda */
+  .card::before {
+    content:'';
+    position:absolute; left:0; top:0; bottom:0; width:4px;
+    border-radius:4px 0 0 4px;
+  }
+  .card.preco-barato::before  { background:var(--barato); }
+  .card.preco-medio::before   { background:var(--medio); }
+  .card.preco-pesado::before  { background:var(--pesado); }
+
+  .card-img {
+    width:76px; height:76px;
+    object-fit:cover; flex-shrink:0;
+    background:#eee;
+    margin:auto 0 auto 4px;
+    border-radius:12px;
+  }
+
+  .card-body {
+    flex:1; padding:10px 10px 10px 12px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    min-width:0;
+  }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
+  .card-nome { font-weight:800; font-size:.92rem; line-height:1.2; color:var(--text); }
+  .card-tipo { font-size:.7rem; color:var(--sub); font-weight:600; margin-top:2px; }
+
+  /* bolinha indicadora de preço */
+  .preco-dot {
+    width:11px; height:11px;
+    border-radius:50%;
+    flex-shrink:0; margin-top:3px;
+  }
+  .dot-barato { background:var(--barato); box-shadow:0 0 6px rgba(52,199,89,.5); }
+  .dot-medio  { background:var(--medio);  box-shadow:0 0 6px rgba(255,159,10,.5); }
+  .dot-pesado { background:var(--pesado); box-shadow:0 0 6px rgba(255,59,48,.5); }
+
+  .card-bottom { display:flex; justify-content:space-between; align-items:center; font-size:.72rem; color:var(--sub); font-weight:700; margin-top:4px; }
+
+  /* ──────── MODAL ──────── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.55); z-index:50;
+    align-items:flex-end; justify-content:center;
+    backdrop-filter:blur(3px);
+  }
+  .modal-overlay.active { display:flex; }
+
+  .modal-box {
+    background:var(--white);
+    border-radius:24px 24px 0 0;
+    padding:0 0 32px;
+    width:100%; max-width:500px;
+    animation:slide-up .28s cubic-bezier(.34,1.4,.64,1);
+    max-height:90vh; overflow-y:auto;
+  }
+  @keyframes slide-up { from { transform:translateY(100%); } to { transform:translateY(0); } }
+
+  .modal-handle {
+    width:40px; height:4px; border-radius:2px;
+    background:#ddd; margin:12px auto 0;
+  }
+
+  .modal-header {
+    padding:16px 20px 14px;
+    border-bottom:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .modal-titulo { font-weight:900; font-size:1.2rem; line-height:1.2; }
+  .modal-sub { font-size:.75rem; color:var(--sub); margin-top:3px; font-weight:600; }
+
+  .modal-close {
+    background:var(--bg); border:none; border-radius:50%;
+    width:30px; height:30px; font-size:1.1rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    color:var(--sub); flex-shrink:0; margin-top:2px;
+  }
+
+  /* faixa de preço no modal */
+  .modal-preco-bar {
+    margin:14px 20px 0;
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:.8rem; font-weight:800;
+    display:flex; align-items:center; gap:8px;
+  }
+  .bar-barato { background:#e8faf0; color:#1a8a3c; }
+  .bar-medio  { background:#fff5e0; color:#b36b00; }
+  .bar-pesado { background:#fff0ef; color:#c0241b; }
+
+  /* botões dos apps */
+  .modal-apps {
+    padding:16px 20px 0;
+    display:flex; gap:12px;
+  }
+
+  .app-btn {
+    flex:1;
+    height:54px;
+    border-radius:14px;
+    border:none;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s, box-shadow .15s;
+    text-decoration:none;
+    overflow:hidden;
+  }
+  .app-btn:active { transform:scale(.94); }
+
+  /* iFood */
+  .btn-ifood { background:#ea1d2c; box-shadow:0 4px 14px rgba(234,29,44,.35); }
+  /* Keeta */
+  .btn-keeta { background:#ff6a00; box-shadow:0 4px 14px rgba(255,106,0,.35); }
+  /* 99Food */
+  .btn-99    { background:#ffdd00; box-shadow:0 4px 14px rgba(255,221,0,.35); }
+
+  .app-logo { width:32px; height:32px; object-fit:contain; }
+
+  /* SVG inline logos */
+  .logo-svg { width:32px; height:32px; }
+
+  .modal-distancia {
+    margin:14px 20px 0;
+    background:var(--bg);
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:.78rem; color:#555; font-weight:700;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  /* ──────── LOADING ──────── */
+  #msg-carregando { text-align:center; color:var(--sub); padding:40px 0; font-weight:700; font-size:.9rem; }
+
+  /* ──────── LEGENDA ──────── */
+  .legenda {
+    display:flex; gap:14px; padding:10px 16px 2px;
+    justify-content:center; max-width:500px; margin:0 auto;
+  }
+  .legenda-item { display:flex; align-items:center; gap:5px; font-size:.68rem; font-weight:700; color:var(--sub); }
+  .legenda-dot { width:9px; height:9px; border-radius:50%; }
+</style>
 </head>
-<body class="bg-gray-50 font-sans pb-10">
+<body>
 
-    <header class="bg-gradient-to-r from-red-500 to-red-600 text-white p-5 text-center shadow-md sticky top-0 z-10">
-        <h1 class="text-xl font-bold">🍕 Comida da Bunita</h1>
-        <p class="text-xs opacity-90 mt-1" id="status-gps">Carregando radar gastronômico...</p>
-    </header>
+<header>
+  <h1>🍕 Comida da Bunita</h1>
+  <p id="status-gps">Carregando radar gastronômico...</p>
+</header>
 
-    <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2 border-b border-gray-100">
-        <button onclick="filtrar('todos')" class="bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-xs shadow-sm">Tudo</button>
-        <button onclick="filtrar('fast_food|pizza|burger|lanche')" class="bg-red-50 text-red-700 px-4 py-2 rounded-full font-medium text-xs border border-red-100">🍔 Lanches & Pizza</button>
-        <button onclick="filtrar('restaurant|churrascaria')" class="bg-orange-50 text-orange-700 px-4 py-2 rounded-full font-medium text-xs border border-orange-100">🍛 Prato Feito / Churrasco</button>
-        <button onclick="filtrar('bakery|cafe|doce')" class="bg-pink-50 text-pink-700 px-4 py-2 rounded-full font-medium text-xs border border-pink-100">🍰 Doces & Salgados</button>
-        <button onclick="filtrar('pastel|pastelaria')" class="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-full font-medium text-xs border border-yellow-100">🥟 Pastelarias</button>
+<div id="filtros">
+  <button class="filtro-btn active" onclick="filtrar('todos',this)">Tudo</button>
+  <button class="filtro-btn" onclick="filtrar('fast_food|pizza|burger|lanche',this)">🍔 Algo Gordo</button>
+  <button class="filtro-btn" onclick="filtrar('restaurant|churrascaria',this)">🍛 Comida de Verdade</button>
+  <button class="filtro-btn" onclick="filtrar('bakery|cafe',this)">☕ Café & Doce</button>
+  <button class="filtro-btn" onclick="filtrar('pastel',this)">🥟 Pastelaria</button>
+</div>
+
+<div class="legenda">
+  <div class="legenda-item"><div class="legenda-dot" style="background:#34c759"></div>Tranquilo ta Barato</div>
+  <div class="legenda-item"><div class="legenda-dot" style="background:#ff9f0a"></div>Mei Caro</div>
+  <div class="legenda-item"><div class="legenda-dot" style="background:#ff3b30"></div>Pesadinho</div>
+</div>
+
+<main id="lista">
+  <p id="msg-carregando">🔍 Sintonizando com o bairro...</p>
+</main>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay" onclick="fecharModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-titulo" id="m-titulo">—</div>
+        <div class="modal-sub" id="m-subtipo">—</div>
+      </div>
+      <button class="modal-close" onclick="fecharModal()">✕</button>
     </div>
 
-    <main class="p-4 max-w-md mx-auto space-y-3" id="lista-restaurantes">
-        <p class="text-center text-gray-500 py-10" id="msg-carregando">Sintonizando com o bairro...</p>
-    </main>
+    <div id="m-preco-bar" class="modal-preco-bar bar-medio">💰 Médio / Mei Caro — até R$60</div>
 
-    <div id="modal-cardapio" class="modal" onclick="fecharModal()">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl border border-gray-100 animate-fade-in" onclick="event.stopPropagation()">
-            
-            <div class="flex justify-between items-start border-b border-gray-100 pb-4">
-                <div>
-                    <h2 id="modal-titulo" class="text-xl font-extrabold text-gray-900 tracking-tight">Nome</h2>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="modal-preco" class="text-xs font-bold px-2.5 py-0.5 rounded-full"></span>
-                        <span id="modal-tipo" class="text-xs text-gray-500 font-medium"></span>
-                    </div>
-                </div>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-1">&times;</button>
-            </div>
+    <div class="modal-apps">
+      <!-- iFood -->
+      <a id="btn-ifood" href="#" target="_blank" class="app-btn btn-ifood" title="iFood">
+        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
+          <text y="44" x="4" font-size="38" font-family="Arial Black,sans-serif" fill="white" font-weight="900">iF</text>
+        </svg>
+      </a>
+      <!-- Keeta -->
+      <a id="btn-keeta" href="#" target="_blank" class="app-btn btn-keeta" title="Keeta">
+        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
+          <circle cx="30" cy="30" r="24" fill="white" opacity=".15"/>
+          <text y="42" x="7" font-size="32" font-family="Arial Black,sans-serif" fill="white" font-weight="900">K</text>
+        </svg>
+      </a>
+      <!-- 99Food -->
+      <a id="btn-99" href="#" target="_blank" class="app-btn btn-99" title="99Food">
+        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
+          <text y="44" x="4" font-size="34" font-family="Arial Black,sans-serif" fill="#1a1a1a" font-weight="900">99</text>
+        </svg>
+      </a>
+    </div>
 
-            <div class="space-y-3 pt-2">
-                <a id="btn-ifood" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#EA1D2C] text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:bg-red-700 transition active:scale-[0.98]">
-                    <span class="text-lg">🎯</span> Abrir no App do iFood
-                </a>
-                
-                <a id="btn-google" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#1A73E8] text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:bg-blue-600 transition active:scale-[0.98]">
-                    <span class="text-lg">📸</span> Ver Cardápio e Fotos (Google)
-                </a>
+    <div class="modal-distancia" id="m-distancia">📍 — · 🕒 —</div>
+  </div>
+</div>
 
-                <div id="info-percurso" class="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center text-xs text-gray-600 font-medium">
-                    🚗 Tempo estimado: <span id="modal-tempo" class="text-gray-900 font-bold"></span>
-                </div>
-            </div>
+<script>
+const LOCAL_BASE = "Vila Augusta, Guarulhos";
+let listaLocais = [], minhaLat = 0, minhaLng = 0;
+
+// ── Fotos por tipo/nome ──────────────────────────────────────────────────────
+const FOTOS = {
+  pizza:       'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80',
+  burger:      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
+  hamburguer:  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
+  sushi:       'https://images.unsplash.com/photo-1553621042-f6e147245754?w=300&q=80',
+  churrasco:   'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80',
+  churrascaria:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80',
+  pastel:      'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=300&q=80',
+  tapioca:     'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=300&q=80',
+  bakery:      'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=80',
+  cafe:        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=80',
+  doceria:     'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300&q=80',
+  japanese:    'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80',
+  frango:      'https://images.unsplash.com/photo-1598103442097-8b74394b95c1?w=300&q=80',
+  steak:       'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80',
+  salada:      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80',
+  default:     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&q=80',
+  fast_food:   'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&q=80',
+  restaurant:  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&q=80',
+};
+
+function getFoto(nome, amenity) {
+  const n = nome.toLowerCase();
+  for (const [k, v] of Object.entries(FOTOS)) {
+    if (n.includes(k)) return v;
+  }
+  return FOTOS[amenity] || FOTOS.default;
+}
+
+// ── Preço por tipo/nome ──────────────────────────────────────────────────────
+function getPreco(nome, amenity) {
+  const n = nome.toLowerCase();
+  // Pesadinho (>R$60)
+  if (/churrascaria|steak|assador|rodizio|rodízio|bistrô|bistro|japonês|japones|sushi|temakeria|seafood|frutos/.test(n))
+    return { nivel:'pesado', txt:'🔴 Pesadinho — acima de R$60', barClass:'bar-pesado', label:'Pesadinho' };
+  // Barato (<R$35)
+  if (/pastel|pastelaria|doceria|doce|cafe|café|bakery|padaria|lanche rápido|cachorro|tapioca|coxinha|esfiha|habibs|habib|subway|bob|mcdonalds|mcdonald|burger king|kfc/.test(n) || amenity === 'bakery' || amenity === 'cafe')
+    return { nivel:'barato', txt:'🟢 Tranquilo ta Barato — até R$35', barClass:'bar-barato', label:'Barato' };
+  // Médio (R$35–60)
+  return { nivel:'medio', txt:'🟡 Médio / Mei Caro — até R$60', barClass:'bar-medio', label:'Médio' };
+}
+
+// ── Haversine ────────────────────────────────────────────────────────────────
+function dist(la1,lo1,la2,lo2) {
+  const R=6371, dLa=(la2-la1)*Math.PI/180, dLo=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dLa/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+window.onload = () => {
+  document.getElementById('status-gps').innerText = `📍 Buscando ao redor de: ${LOCAL_BASE}`;
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}`)
+    .then(r=>r.json()).then(d=>{
+      if(d&&d.length>0){
+        minhaLat=parseFloat(d[0].lat); minhaLng=parseFloat(d[0].lon);
+        varrer(minhaLat,minhaLng);
+      }
+    });
+};
+
+function varrer(lat,lng) {
+  const p=.025, q=.028;
+  const url=`https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"~"restaurant|fast_food|cafe|bakery"](${lat-p},${lng-q},${lat+p},${lng+q});out;`;
+  fetch(url).then(r=>r.json()).then(d=>{
+    if(d.elements&&d.elements.length){
+      listaLocais=d.elements;
+      renderizar(listaLocais);
+      document.getElementById('status-gps').innerText=`🍿 ${listaLocais.length} opções encontradas perto de você!`;
+    } else {
+      document.getElementById('msg-carregando').innerText='Nenhum restaurante mapeado aqui.';
+    }
+  }).catch(()=>{ document.getElementById('msg-carregando').innerText='Instabilidade na rede. Recarregue.'; });
+}
+
+function renderizar(locais) {
+  const el = document.getElementById('lista');
+  el.innerHTML='';
+
+  const formatados = locais.map(l=>{
+    const nome = l.tags.name||'Comércio de Comida';
+    const amenity = l.tags.amenity||'restaurant';
+    const d = dist(minhaLat,minhaLng,parseFloat(l.lat),parseFloat(l.lon));
+    const t = Math.max(2,Math.round(d*3.5));
+    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon };
+  }).sort((a,b)=>a.d-b.d);
+
+  formatados.forEach(l=>{
+    const div=document.createElement('div');
+    div.className=`card preco-${l.preco.nivel}`;
+    div.setAttribute('data-tipo',l.amenity);
+    div.setAttribute('data-nome',l.nome.toLowerCase());
+
+    const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
+
+    div.innerHTML=`
+      <img class="card-img" src="${l.foto}" alt="${l.nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-nome">${l.nome}</div>
+            <div class="card-tipo">${tipoLabel}</div>
+          </div>
+          <div class="preco-dot dot-${l.preco.nivel}"></div>
         </div>
-    </div>
+        <div class="card-bottom">
+          <span>📍 ${l.d.toFixed(1)} km</span>
+          <span>🕒 ~${l.t} min</span>
+        </div>
+      </div>`;
 
-    <script>
-        // COLOQUE SEU BAIRRO / CIDADE BASE AQUI PARA FACILITAR A BUSCA INICIAL AUTOMÁTICA
-        const LOCAL_BASE = "Vila Augusta, Guarulhos"; 
-        
-        let listaLocais = [];
-        let minhaLat = 0;
-        let minhaLng = 0;
+    div.onclick=()=>abrirModal(l);
+    el.appendChild(div);
+  });
+}
 
-        window.onload = function() {
-            document.getElementById('status-gps').innerText = `📍 Buscando ao redor de: ${LOCAL_BASE}`;
-            
-            // Primeiro localiza as coordenadas do seu bairro pré-definido para não falhar
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}`)
-                .then(r => r.json())
-                .then(dados => {
-                    if(dados && dados.length > 0) {
-                        minhaLat = parseFloat(dados[0].lat);
-                        minhaLng = parseFloat(dados[0].lon);
-                        varrerBairro(minhaLat, minhaLng);
-                    } else {
-                        document.getElementById('msg-carregando').innerText = "Erro ao configurar bairro padrão.";
-                    }
-                });
-        };
+// ── Filtro ───────────────────────────────────────────────────────────────────
+function filtrar(cat, btn) {
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(c=>{
+    if(cat==='todos'){ c.style.display='flex'; return; }
+    const regex=new RegExp(cat);
+    c.style.display=(regex.test(c.dataset.tipo)||regex.test(c.dataset.nome))?'flex':'none';
+  });
+}
 
-        function varrerBairro(lat, lng) {
-            // Raio de varredura amplo de ~3km
-            const minLat = lat - 0.025;
-            const maxLat = lat + 0.025;
-            const minLng = lng - 0.028;
-            const maxLng = lng + 0.028;
+// ── Modal ────────────────────────────────────────────────────────────────────
+function abrirModal(l) {
+  const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
 
-            const url = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"~"restaurant|fast_food|cafe|bakery"](${minLat},${minLng},${maxLat},${maxLng});out;`;
+  document.getElementById('m-titulo').innerText = l.nome;
+  document.getElementById('m-subtipo').innerText = tipoLabel;
 
-            fetch(url)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.elements && data.elements.length > 0) {
-                        listaLocais = data.elements;
-                        renderizarLista(listaLocais);
-                        document.getElementById('status-gps').innerText = `🍿 ${listaLocais.length} opções encontradas perto de você!`;
-                    } else {
-                        document.getElementById('msg-carregando').innerText = "Nenhum restaurante listado mapeado aqui.";
-                    }
-                }).catch(() => {
-                    document.getElementById('msg-carregando').innerText = "Instabilidade na rede. Recarregue a página.";
-                });
-        }
+  const bar = document.getElementById('m-preco-bar');
+  bar.className = `modal-preco-bar ${l.preco.barClass}`;
+  bar.innerText = l.preco.txt;
 
-        // Função Haversine Matemática para calcular distância real em linha reta entre os pontos
-        function calcularDistanciaReal(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Raio da Terra em km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c; 
-        }
+  document.getElementById('m-distancia').innerHTML = `📍 ${l.d.toFixed(1)} km de distância &nbsp;·&nbsp; 🕒 ~${l.t} min de carro`;
 
-        // Retorna a foto perfeita baseada no que vende no local
-        function descobrirFotoEPreco(nome, tipoOriginal) {
-            const n = nome.toLowerCase();
-            let foto = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'; // Geral / PF
-            let preco = { txt: "Médio 💰 Michael", cor: "bg-orange-100 text-orange-800", nivel: 2 };
+  const q = encodeURIComponent(l.nome);
+  document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${q}`;
+  document.getElementById('btn-keeta').href = `https://keeta.com.br/busca?q=${q}`;
+  document.getElementById('btn-99').href    = `https://www.99app.com/food?q=${q}`;
 
-            if(n.includes('pizza') || n.includes('pizzaria')) {
-                foto = 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200';
-                preco = { txt: "Médio 💰💰", cor: "bg-orange-100 text-orange-800", nivel: 2 };
-            } else if(n.includes('burger') || n.includes('hamburguer') || n.includes('bob') || n.includes('mcdonald')) {
-                foto = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200';
-                preco = { txt: "Barato/Médio 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
-            } else if(n.includes('pastel') || n.includes('pastelaria')) {
-                foto = 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=200'; // Imagem pastel aproximada
-                preco = { txt: "Econômico 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
-            } else if(n.includes('dog') || n.includes('cachorro quente') || n.includes('dogão')) {
-                foto = 'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=200';
-                preco = { txt: "Econômico 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
-            } else if(n.includes('churrasco') || n.includes('churrascaria') || n.includes('steak')) {
-                foto = 'https://images.unsplash.com/photo-1544025162-d76694265947?w=200';
-                preco = { txt: "Mais Caro 💰💰💰", cor: "bg-red-100 text-red-800", nivel: 3 };
-            } else if(tipoOriginal === 'bakery' || n.includes('pão') || n.includes('doceria')) {
-                foto = 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200';
-                preco = { txt: "Acessível 💰", cor: "bg-green-100 text-green-800", nivel: 1 };
-            }
-            
-            return { foto, preco };
-        }
+  document.getElementById('modal').classList.add('active');
+  document.body.style.overflow='hidden';
+}
 
-        function renderizarLista(locais) {
-            const container = document.getElementById('lista-restaurantes');
-            container.innerHTML = "";
-
-            // Organiza os locais calculando as distâncias reais
-            let locaisFormatados = locais.map(local => {
-                const nome = local.tags.name || "Comércio de Comida";
-                const tipoOriginal = local.tags.amenity || "restaurant";
-                const dist = calcularDistanciaReal(minhaLat, minhaLng, parseFloat(local.lat), parseFloat(local.lon));
-                
-                // Cálculo estimado de tempo (Média de 3 minutos por quilômetro de carro no bairro)
-                const tempoMinutos = Math.max(2, Math.round(dist * 3.5));
-
-                const meta = descobrirFotoEPreco(nome, tipoOriginal);
-
-                return {
-                    nome,
-                    tipoOriginal,
-                    distancia: dist,
-                    tempo: tempoMinutos,
-                    foto: meta.foto,
-                    preco: meta.preco,
-                    lat: local.lat,
-                    lon: local.lon
-                };
-            });
-
-            // Ordena do mais perto para o mais longe automaticamente
-            locaisFormatados.sort((a, b) => a.distancia - b.distancia);
-
-            locaisFormatados.forEach(local => {
-                const nomeEscapado = local.nome.replace(/'/g, "\\'");
-                
-                container.innerHTML += `
-                    <div class="bg-white rounded-xl shadow-xs p-3 flex gap-3 border border-gray-100 card-restaurante cursor-pointer active:bg-gray-50 transition"
-                         data-tipo="${local.tipoOriginal}" data-nome="${local.nome.toLowerCase()}"
-                         onclick="abrirOpcoes('${nomeEscapado}', '${local.preco.txt}', '${local.preco.cor}', '${local.distancia.toFixed(1)} km', '${local.tempo} min de carro')">
-                        
-                        <img src="${local.foto}" class="w-16 h-16 rounded-lg object-cover bg-gray-50 my-auto flex-shrink-0">
-                        
-                        <div class="flex-1 min-w-0 flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between gap-1">
-                                    <h3 class="font-bold text-gray-800 text-sm truncate pr-2">${local.nome}</h3>
-                                    <span class="text-[10px] font-bold ${local.preco.cor} px-2 py-0.5 rounded-full flex-shrink-0">${local.preco.txt.split(' ')[0]}</span>
-                                </div>
-                                <p class="text-[11px] text-gray-400 mt-0.5 uppercase font-semibold tracking-wider">${local.tipoOriginal.replace('_', ' ')}</p>
-                            </div>
-                            
-                            <div class="flex items-center justify-between text-xs text-gray-500 mt-1 font-medium">
-                                <span>📍 à ${local.distancia.toFixed(1)} km</span>
-                                <span class="text-gray-700 font-semibold">🕒 ~${local.tempo} min</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function filtrar(categoria) {
-            const cards = document.querySelectorAll('.card-restaurante');
-            cards.forEach(card => {
-                if (categoria === 'todos') {
-                    card.style.display = 'flex';
-                    return;
-                }
-                const tipoCard = card.getAttribute('data-tipo');
-                const nomeCard = card.getAttribute('data-nome');
-                const regex = new RegExp(categoria);
-                
-                if (regex.test(tipoCard) || regex.test(nomeCard)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        function abrirOpcoes(nome, precoTxt, precoCor, distancia, tempo) {
-            document.getElementById('modal-titulo').innerText = nome;
-            
-            const elPreco = document.getElementById('modal-preco');
-            elPreco.innerText = precoTxt;
-            elPreco.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${precoCor}`;
-
-            document.getElementById('modal-tipo').innerText = `Distância: ${distancia}`;
-            document.getElementById('modal-tempo').innerText = tempo;
-
-            // Links automáticos ultra precisos
-            document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${encodeURIComponent(nome)}`;
-            document.getElementById('btn-google').href = `https://www.google.com/search?q=${encodeURIComponent(nome + " cardapio menu fotos")}`;
-
-            document.getElementById('modal-cardapio').classList.add('active');
-        }
-
-        function fecharModal() {
-            document.getElementById('modal-cardapio').classList.remove('active');
-        }
-    </script>
+function fecharModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.body.style.overflow='';
+}
+</script>
 </body>
 </html>
