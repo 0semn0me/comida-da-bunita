@@ -193,11 +193,11 @@
   /* iFood */
   .btn-ifood { background:#ea1d2c; box-shadow:0 4px 14px rgba(234,29,44,.35); }
   /* Keeta */
-  .btn-keeta { background:#ff6a00; box-shadow:0 4px 14px rgba(255,106,0,.35); }
+  .btn-keeta { background:#ffe600; box-shadow:0 4px 14px rgba(255,230,0,.45); }
   /* 99Food */
-  .btn-99    { background:#ffdd00; box-shadow:0 4px 14px rgba(255,221,0,.35); }
+  .btn-99    { background:#ffc200; box-shadow:0 4px 14px rgba(255,194,0,.45); }
 
-  .app-logo { width:32px; height:32px; object-fit:contain; }
+  .app-logo { width:40px; height:40px; object-fit:contain; border-radius:8px; }
 
   /* SVG inline logos */
   .logo-svg { width:32px; height:32px; }
@@ -263,23 +263,29 @@
     <div id="m-preco-bar" class="modal-preco-bar bar-medio">💰 Médio / Mei Caro — até R$60</div>
 
     <div class="modal-apps">
-      <!-- iFood -->
+      <!-- iFood: vermelho + letras "ifood" estilo real + sorriso/seta -->
       <a id="btn-ifood" href="#" target="_blank" class="app-btn btn-ifood" title="iFood">
-        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
-          <text y="44" x="4" font-size="38" font-family="Arial Black,sans-serif" fill="white" font-weight="900">iF</text>
+        <svg viewBox="0 0 110 44" width="80" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- "i" -->
+          <text x="2" y="34" font-family="Arial Black,Helvetica,sans-serif" font-size="36" font-weight="900" fill="white" letter-spacing="-1">ifood</text>
+          <!-- sorriso/seta embaixo -->
+          <path d="M18 40 Q46 52 72 40" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <polygon points="72,37 78,41 71,45" fill="white"/>
         </svg>
       </a>
-      <!-- Keeta -->
+      <!-- Keeta: amarelo + texto "keeta" minúsculo bold -->
       <a id="btn-keeta" href="#" target="_blank" class="app-btn btn-keeta" title="Keeta">
-        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
-          <circle cx="30" cy="30" r="24" fill="white" opacity=".15"/>
-          <text y="42" x="7" font-size="32" font-family="Arial Black,sans-serif" fill="white" font-weight="900">K</text>
+        <svg viewBox="0 0 100 44" width="76" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="2" y="32" font-family="Arial Rounded MT Bold,Arial Black,sans-serif" font-size="30" font-weight="900" fill="#1a1a1a" letter-spacing="-0.5">keeta</text>
+          <!-- sorriso pontilhado -->
+          <path d="M8 38 Q38 50 72 38" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="4 3"/>
         </svg>
       </a>
-      <!-- 99Food -->
+      <!-- 99Food: amarelo + "99" grande em preto + "Food" menor -->
       <a id="btn-99" href="#" target="_blank" class="app-btn btn-99" title="99Food">
-        <svg class="logo-svg" viewBox="0 0 60 60" fill="none">
-          <text y="44" x="4" font-size="34" font-family="Arial Black,sans-serif" fill="#1a1a1a" font-weight="900">99</text>
+        <svg viewBox="0 0 72 54" width="52" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="2" y="36" font-family="Arial Black,Helvetica,sans-serif" font-size="38" font-weight="900" fill="#1a1a1a" letter-spacing="-2">99</text>
+          <text x="8" y="50" font-family="Arial Black,Helvetica,sans-serif" font-size="14" font-weight="700" fill="#1a1a1a" letter-spacing="1">Food</text>
         </svg>
       </a>
     </div>
@@ -377,7 +383,8 @@ function renderizar(locais) {
     const amenity = l.tags.amenity||'restaurant';
     const d = dist(minhaLat,minhaLng,parseFloat(l.lat),parseFloat(l.lon));
     const t = Math.max(2,Math.round(d*3.5));
-    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon };
+    const bairro = l.tags['addr:suburb'] || l.tags['addr:neighbourhood'] || l.tags['addr:quarter'] || l.tags['addr:city'] || '';
+    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat:l.lat, lon:l.lon, bairro };
   }).sort((a,b)=>a.d-b.d);
 
   formatados.forEach(l=>{
@@ -387,6 +394,7 @@ function renderizar(locais) {
     div.setAttribute('data-nome',l.nome.toLowerCase());
 
     const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
+    const subLabel = l.bairro ? '📌 ' + l.bairro : tipoLabel;
 
     div.innerHTML=`
       <img class="card-img" src="${l.foto}" alt="${l.nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
@@ -394,7 +402,7 @@ function renderizar(locais) {
         <div class="card-top">
           <div>
             <div class="card-nome">${l.nome}</div>
-            <div class="card-tipo">${tipoLabel}</div>
+            <div class="card-tipo">${subLabel}</div>
           </div>
           <div class="preco-dot dot-${l.preco.nivel}"></div>
         </div>
