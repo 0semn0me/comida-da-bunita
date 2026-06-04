@@ -3,86 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O que vamos comer hoje?</title>
+    <title>Comida da Bunita - Varredura Gratuita</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .modal { display: none; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
         .modal.active { display: flex; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans pb-10">
 
     <header class="bg-red-500 text-white p-5 text-center shadow-md sticky top-0 z-10">
-        <h1 class="text-xl font-bold">Rastreador de Fome 🔎</h1>
-        <p class="text-sm opacity-90">Varredura de até 3km (Fora do Óbvio)</p>
+        <h1 class="text-xl font-bold">🍕 Comida da Bunita</h1>
+        <p class="text-sm opacity-90" id="status-gps">Buscando sua localização...</p>
     </header>
 
-    <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2 scrollbar-none">
-        <button onclick="filtrar('todos')" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-full font-medium text-sm active:scale-95 transition">Tudo</button>
-        <button onclick="filtrar('ogro')" class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium text-sm active:scale-95 transition">🍔 Algo Gordo / Ogro</button>
-        <button onclick="filtrar('comida')" class="bg-orange-100 text-orange-700 px-4 py-2 rounded-full font-medium text-sm active:scale-95 transition">🍛 Comida de Verdade</button>
-        <button onclick="filtrar('doce')" class="bg-pink-100 text-pink-700 px-4 py-2 rounded-full font-medium text-sm active:scale-95 transition">🍰 Beliscar / Doce</button>
-        <button onclick="filtrar('leve')" class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-medium text-sm active:scale-95 transition">🥗 Algo Leve</button>
+    <div class="p-4 bg-white shadow-sm sticky top-[68px] z-10 overflow-x-auto whitespace-nowrap flex gap-2">
+        <button onclick="filtrar('todos')" class="bg-gray-800 text-white px-4 py-2 rounded-full font-medium text-sm">Tudo</button>
+        <button onclick="filtrar('fast_food|pizza|burger')" class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium text-sm">🍔 Algo Gordo / Ogro</button>
+        <button onclick="filtrar('restaurant')" class="bg-orange-100 text-orange-700 px-4 py-2 rounded-full font-medium text-sm">🍛 Comida de Verdade</button>
+        <button onclick="filtrar('bakery|cafe')" class="bg-pink-100 text-pink-700 px-4 py-2 rounded-full font-medium text-sm">🍰 Beliscar / Doce</button>
     </div>
 
     <main class="p-4 max-w-md mx-auto space-y-4" id="lista-restaurantes">
-        
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-restaurante" data-desejo="ogro" onclick="abrirModal('Burger do Bairro', 'R$ 25 - R$ 45', ['https://picsum.photos/id/102/600/400', 'https://picsum.photos/id/1060/600/400'])">
-            <div class="flex h-24">
-                <img src="https://picsum.photos/id/102/150/150" class="w-24 h-full object-cover" alt="Hambúrguer">
-                <div class="p-3 flex flex-col justify-between flex-1">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base">Podrão do Ivan (Não tá no iFood)</h3>
-                        <p class="text-xs text-gray-500">⭐ 4.8 • 1.2 km de distância</p>
-                    </div>
-                    <span class="text-xs text-green-600 font-semibold bg-green-50 self-start px-2 py-0.5 rounded">Aberto agora</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden card-restaurante" data-desejo="comida" onclick="abrirModal('Restaurante da Dona Maria', 'PF Comercial: R$ 22,00', ['https://picsum.photos/id/429/600/400', 'https://picsum.photos/id/493/600/400'])">
-            <div class="flex h-24">
-                <img src="https://picsum.photos/id/429/150/150" class="w-24 h-full object-cover" alt="Comida">
-                <div class="p-3 flex flex-col justify-between flex-1">
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-base">Pensando Caseiro (Marmitaria)</h3>
-                        <p class="text-xs text-gray-500">⭐ 4.9 • 2.1 km de distância</p>
-                    </div>
-                    <span class="text-xs text-green-600 font-semibold bg-green-50 self-start px-2 py-0.5 rounded">Aberto agora</span>
-                </div>
-            </div>
-        </div>
-
+        <p class="text-center text-gray-500 py-10" id="msg-carregando">Aguardando GPS para iniciar a varredura...</p>
     </main>
 
-    <div id="modal-cardapio" class="modal fixed inset-0 bg-black/60 z-50 items-end justify-center p-4" onclick="fecharModal(event)">
-        <div class="bg-white w-full max-w-md rounded-t-2xl p-5 space-y-4 animate-slide-up" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center border-b pb-2">
-                <h2 id="modal-titulo" class="text-lg font-bold text-gray-900">Nome do Lugar</h2>
-                <button onclick="document.getElementById('modal-cardapio').classList.remove('active')" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-            
-            <div class="w-full h-48 bg-gray-200 rounded-lg overflow-hidden">
-                <img id="modal-foto" src="" class="w-full h-full object-cover" alt="Foto do Prato">
-            </div>
-
-            <div>
-                <h4 class="text-sm font-semibold text-gray-700">Valores Médios / Destaque:</h4>
-                <p id="modal-precos" class="text-sm text-gray-600 font-mono mt-1">Preços aqui...</p>
+    <div id="modal-cardapio" class="modal" onclick="fecharModal()">
+        <div class="bg-white w-full max-w-md rounded-2xl p-5 space-y-4 shadow-xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center border-b pb-3">
+                <div>
+                    <h2 id="modal-titulo" class="text-lg font-bold text-gray-900">Nome do Local</h2>
+                    <p id="modal-tipo" class="text-xs text-gray-500 font-mono"></p>
+                </div>
+                <button onclick="fecharModal()" class="text-gray-400 text-2xl font-bold">&times;</button>
             </div>
 
-            <a href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20ver%20o%20cardápio." target="_blank" class="block w-full bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow-md hover:bg-green-600 transition">
-                💬 Chamar no WhatsApp do Lugar
-            </a>
+            <p class="text-sm text-gray-600">Use os atalhos automáticos abaixo para ver fotos do cardápio ou abrir nos apps:</p>
+
+            <div class="space-y-3 pt-2">
+                <a id="btn-ifood" href="#" target="_blank" class="block w-full bg-red-600 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-red-700">
+                    🎯 Buscar no iFood / Comparar Preço
+                </a>
+                <a id="btn-google" href="#" target="_blank" class="block w-full bg-blue-500 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-blue-600">
+                    📸 Ver Cardápio & Fotos no Google
+                </a>
+                <a id="btn-telefone" href="#" class="block w-full bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow transition hover:bg-green-600">
+                    📞 Ligar para o Local
+                </a>
+            </div>
         </div>
     </div>
 
     <script>
-        // Função para filtrar a lista na hora que clicar nos desejos
-        function filtrar(desejo) {
+        let listaLocais = [];
+
+        // Inicializa o GPS do celular assim que abre a página
+        window.onload = function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(varrerBairroOpenStreetMap, (erro) => {
+                    document.getElementById('status-gps').innerText = "❌ GPS Negado";
+                    document.getElementById('msg-carregando').innerText = "Por favor, autorize a localização para o site varrer seu bairro.";
+                });
+            } else {
+                document.getElementById('status-gps').innerText = "❌ Sem suporte a GPS";
+            }
+        };
+
+        // Varre a região usando a API pública e gratuita do OpenStreetMap (Overpass)
+        function varrerBairroOpenStreetMap(posicao) {
+            const lat = posicao.coords.latitude;
+            const lng = posicao.coords.longitude;
+            document.getElementById('status-gps').innerText = "📍 Localização Fixada! Escaneando raio de 3km...";
+            document.getElementById('msg-carregando').innerText = "Buscando restaurantes reais perto de você...";
+
+            // Raio de 0.03 graus (~3km) ao redor das coordenadas
+            const minLat = lat - 0.027;
+            const maxLat = lat + 0.027;
+            const minLng = lng - 0.030;
+            const maxLng = lng + 0.030;
+
+            // Busca por nós de alimentação cadastrados na região
+            const url = `https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"~"restaurant|fast_food|cafe|bakery"](${minLat},${minLng},${maxLat},${maxLng});out;`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.elements && data.elements.length > 0) {
+                        listaLocais = data.elements;
+                        renderizarLista(listaLocais);
+                    } else {
+                        document.getElementById('msg-carregando').innerText = "Nenhum local mapeado no OpenStreetMap dessa região.";
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('msg-carregando').innerText = "Erro ao conectar com o servidor do mapa gratuito. Tente atualizar.";
+                });
+        }
+
+        // Monta os cards dos restaurantes reais na tela
+        function renderizarLista(locais) {
+            const container = document.getElementById('lista-restaurantes');
+            container.innerHTML = "";
+
+            locais.forEach(local => {
+                const nome = local.tags.name || "Restaurante sem Nome";
+                const tipoOriginal = local.tags.amenity || "comida";
+                
+                // Tradução simples do tipo para exibição
+                let tipoTraduzido = "🍛 Restaurante";
+                if(tipoOriginal === 'fast_food') tipoTraduzido = "🍔 Lanche / Fast Food";
+                if(tipoOriginal === 'bakery') tipoTraduzido = "🍰 Padaria / Doce";
+                if(tipoOriginal === 'cafe') tipoTraduzido = "☕ Café / Sobremesa";
+
+                // Ícones de comida aleatórios para ilustrar o card
+                const fotosPadrao = [
+                    'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=150', // pizza
+                    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150', // burger
+                    'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150'  // prato
+                ];
+                const fotoSorteada = fotosPadrao[Math.floor(Math.random() * fotosPadrao.length)];
+
+                const nomeEscapado = nome.replace(/'/g, "\\'");
+                const telefone = local.tags.phone || local.tags["contact:phone"] || "";
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 card-restaurante cursor-pointer" 
+                         data-tipo="${tipoOriginal}" data-nome="${nome.toLowerCase()}"
+                         onclick="abrirOpcoes('${nomeEscapado}', '${tipoTraduzido}', '${telefone}')">
+                        <div class="flex p-3 gap-3">
+                            <img src="${fotoSorteada}" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">${nome}</h3>
+                                    <p class="text-xs text-gray-400 mt-0.5">${tipoTraduzido}</p>
+                                </div>
+                                <span class="text-[10px] font-bold text-green-600">✓ Disponível no raio de 3km</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filtrar(categoria) {
             const cards = document.querySelectorAll('.card-restaurante');
             cards.forEach(card => {
-                if (desejo === 'todos' || card.getAttribute('data-desejo') === desejo) {
+                if (categoria === 'todos') {
+                    card.style.display = 'block';
+                    return;
+                }
+                const tipoCard = card.getAttribute('data-tipo');
+                const regex = new RegExp(categoria);
+                if (regex.test(tipoCard)) {
                     card.style.display = 'block';
                 } else {
                     card.style.display = 'none';
@@ -90,15 +162,27 @@
             });
         }
 
-        // Função para abrir o álbum de fotos e detalhes do restaurante
-        function abrirModal(nome, precos, fotos) {
+        function abrirOpcoes(nome, tipo, telefone) {
             document.getElementById('modal-titulo').innerText = nome;
-            document.getElementById('modal-precos').innerText = precos;
-            document.getElementById('modal-foto').src = fotos[0]; // Pega a primeira foto do álbum
+            document.getElementById('modal-tipo').innerText = tipo;
+
+            // Links dinâmicos de busca automática
+            document.getElementById('btn-ifood').href = `https://www.ifood.com.br/busca?q=${encodeURIComponent(nome)}`;
+            document.getElementById('btn-google').href = `https://www.google.com/search?q=${encodeURIComponent(nome + " restaurante cardapio")}`;
+
+            const btnTel = document.getElementById('btn-telefone');
+            if(telefone) {
+                btnTel.href = `tel:${telefone}`;
+                btnTel.innerText = `📞 Ligar para o Local (${telefone})`;
+                btnTel.style.display = 'block';
+            } else {
+                btnTel.style.display = 'none';
+            }
+
             document.getElementById('modal-cardapio').classList.add('active');
         }
 
-        function fecharModal(e) {
+        function fecharModal() {
             document.getElementById('modal-cardapio').classList.remove('active');
         }
     </script>
