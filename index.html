@@ -10,7 +10,7 @@
 
   :root {
     --red:    #e8272a;
-    --bg:     #f2f2f7;
+    --bg:      #f2f2f7;
     --white:  #ffffff;
     --card:   #ffffff;
     --text:   #1c1c1e;
@@ -94,7 +94,7 @@
     width:76px; height:76px;
     object-fit:cover; flex-shrink:0;
     background:#eee;
-    margin:auto 0 auto 4px;
+    margin:auto 0 auto 10px;
     border-radius:12px;
   }
 
@@ -197,9 +197,6 @@
   /* 99Food: fundo AMARELO-LARANJA marca */
   .btn-99    { background:#ffcc00; box-shadow:0 3px 12px rgba(255,204,0,.4); }
 
-  .app-logo { width:40px; height:40px; object-fit:contain; border-radius:8px; }
-  .logo-svg { width:32px; height:32px; }
-
   .modal-distancia {
     margin:14px 20px 0;
     background:var(--bg);
@@ -243,10 +240,9 @@
 </div>
 
 <main id="lista">
-  <p id="msg-carregando">🔍 Sintonizando com o bairro...</p>
+  <p id="msg-carregando">🔍 Sintonizando com o bairro (Raio de 5km)...</p>
 </main>
 
-<!-- MODAL -->
 <div id="modal" class="modal-overlay" onclick="fecharModal()">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
@@ -260,48 +256,34 @@
 
     <div id="m-preco-bar" class="modal-preco-bar bar-medio">💰 Médio / Mei Caro — até R$60</div>
 
-    <!-- Linha 1: iFood + Keeta + 99Food -->
     <div class="modal-apps">
-
-      <!-- iFood: fundo BRANCO, logo vermelho -->
       <a id="btn-ifood" href="#" target="_blank" class="app-btn btn-ifood" title="iFood">
         <svg viewBox="0 0 140 70" width="90" height="36">
-          <!-- letras "ifood" estilo marca – peso black, vermelho -->
           <text x="4" y="50" font-family="Arial Black,Impact,sans-serif" font-size="52" font-weight="900" fill="#ea1d2c" letter-spacing="-2">ifood</text>
-          <!-- sorriso/seta curva embaixo -->
           <path d="M22 58 Q68 76 108 56" stroke="#ea1d2c" stroke-width="4.5" fill="none" stroke-linecap="round"/>
           <path d="M102 52 L112 58 L100 62 Z" fill="#ea1d2c"/>
         </svg>
       </a>
 
-      <!-- Keeta: fundo AMARELO, logo preto -->
       <a id="btn-keeta" href="#" target="_blank" class="app-btn btn-keeta" title="Keeta">
         <svg viewBox="0 0 130 68" width="84" height="34">
-          <!-- "keeta" bold arredondado -->
           <text x="4" y="46" font-family="Arial Rounded MT Bold,Arial Black,Verdana,sans-serif" font-size="44" font-weight="900" fill="#111" letter-spacing="-1">keeta</text>
-          <!-- sorriso pontilhado / garfo -->
           <path d="M12 54 Q55 72 108 52" stroke="#111" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-dasharray="5 4"/>
           <circle cx="112" cy="51" r="3.5" fill="#111"/>
           <circle cx="120" cy="54" r="3.5" fill="#111"/>
         </svg>
       </a>
 
-      <!-- 99Food: fundo AMARELO-DOURADO, logo preto -->
       <a id="btn-99" href="#" target="_blank" class="app-btn btn-99" title="99Food">
         <svg viewBox="0 0 80 68" width="52" height="44">
-          <!-- "99" grande -->
           <text x="2" y="46" font-family="Arial Black,Impact,sans-serif" font-size="50" font-weight="900" fill="#111" letter-spacing="-4">99</text>
-          <!-- "Food" centralizado embaixo -->
           <text x="10" y="62" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="#111" letter-spacing="1.5">Food</text>
         </svg>
       </a>
-
     </div>
 
-    <!-- Linha 2: Google -->
     <div style="padding:10px 20px 0;">
       <a id="btn-google" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:14px;background:#fff;border:1.5px solid #e0e0e0;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .15s;" title="Ver no Google">
-        <!-- Google G colorido -->
         <svg width="22" height="22" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
           <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -326,21 +308,21 @@ const FOTOS = {
   pizza:       'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80',
   burger:      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
   hamburguer:  'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
+  bobs:        'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
+  mcdonald:    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80',
   sushi:       'https://images.unsplash.com/photo-1553621042-f6e147245754?w=300&q=80',
   churrasco:   'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80',
   churrascaria:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80',
-  pastel:      'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=300&q=80',
-  tapioca:     'https://images.unsplash.com/photo-1601924582970-9238bcb495d9?w=300&q=80',
+  pastel:      'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=300&q=80',
+  pastelaria:  'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=300&q=80',
+  dog:         'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=300&q=80',
+  cachorro:    'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=300&q=80',
+  hotdog:      'https://images.unsplash.com/photo-1619740455993-9e612b1af08a?w=300&q=80',
+  subway:      'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80',
+  habib:       'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=300&q=80',
   bakery:      'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=80',
   cafe:        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=80',
-  doceria:     'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300&q=80',
-  japanese:    'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80',
-  frango:      'https://images.unsplash.com/photo-1598103442097-8b74394b95c1?w=300&q=80',
-  steak:       'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300&q=80',
-  salada:      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80',
   default:     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&q=80',
-  fast_food:   'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&q=80',
-  restaurant:  'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&q=80',
 };
 
 function getFoto(nome, amenity) {
@@ -354,18 +336,12 @@ function getFoto(nome, amenity) {
 // ── Preço por tipo/nome ──────────────────────────────────────────────────────
 function getPreco(nome, amenity) {
   const n = nome.toLowerCase();
-  // Pesadinho (>R$60)
   if (/churrascaria|steak|assador|rodizio|rodízio|bistrô|bistro|japonês|japones|sushi|temakeria|seafood|frutos/.test(n))
     return { nivel:'pesado', txt:'🔴 Pesadinho — acima de R$60', barClass:'bar-pesado', label:'Pesadinho' };
-  // Barato (<R$35)
-  if (/pastel|pastelaria|doceria|doce|cafe|café|bakery|padaria|lanche rápido|cachorro|tapioca|coxinha|esfiha|habibs|habib|subway|bob|mcdonalds|mcdonald|burger king|kfc/.test(n) || amenity === 'bakery' || amenity === 'cafe')
+  if (/pastel|pastelaria|doceria|doce|cafe|café|bakery|padaria|lanche|cachorro|tapioca|coxinha|esfiha|habibs|habib|subway|bob|mcdonald|burger king|kfc|dog/.test(n) || amenity === 'bakery' || amenity === 'cafe')
     return { nivel:'barato', txt:'🟢 Tranquilo ta Barato — até R$35', barClass:'bar-barato', label:'Barato' };
-  // Médio (R$35–60)
   return { nivel:'medio', txt:'🟡 Médio / Mei Caro — até R$60', barClass:'bar-medio', label:'Médio' };
 }
-
-// ── Cache de bairros (compartilhado entre todas as chamadas) ─────────────────
-const bairroCache = {};
 
 // ── Haversine ────────────────────────────────────────────────────────────────
 function dist(la1,lo1,la2,lo2) {
@@ -376,18 +352,16 @@ function dist(la1,lo1,la2,lo2) {
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
 window.onload = () => {
-  // Tenta GPS real do dispositivo primeiro (mais rápido e preciso)
   if (navigator.geolocation) {
-    document.getElementById('status-gps').innerText = '📍 Pegando sua localização...';
+    document.getElementById('status-gps').innerText = '📍 Buscando sua localização real...';
     navigator.geolocation.getCurrentPosition(
       pos => {
         minhaLat = pos.coords.latitude;
         minhaLng = pos.coords.longitude;
-        document.getElementById('status-gps').innerText = '🔍 Carregando restaurantes próximos...';
         varrer(minhaLat, minhaLng);
       },
-      () => usarBairroBase(), // se recusar GPS, usa bairro base
-      { timeout: 6000, maximumAge: 60000 }
+      () => usarBairroBase(),
+      { timeout: 4000, maximumAge: 60000 }
     );
   } else {
     usarBairroBase();
@@ -395,7 +369,7 @@ window.onload = () => {
 };
 
 function usarBairroBase() {
-  document.getElementById('status-gps').innerText = `📍 Buscando em: ${LOCAL_BASE}`;
+  document.getElementById('status-gps').innerText = `📍 Usando ponto fixo: ${LOCAL_BASE}`;
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(LOCAL_BASE)}&limit=1`)
     .then(r => r.json())
     .then(d => {
@@ -404,24 +378,22 @@ function usarBairroBase() {
         minhaLng = parseFloat(d[0].lon);
         varrer(minhaLat, minhaLng);
       } else {
-        document.getElementById('msg-carregando').innerText = 'Não consegui localizar o bairro base.';
+        document.getElementById('msg-carregando').innerText = 'Erro ao centralizar mapa no bairro.';
       }
     })
     .catch(() => {
-      document.getElementById('msg-carregando').innerText = 'Sem conexão. Recarregue a página.';
+      document.getElementById('msg-carregando').innerText = 'Sem sinal de rede.';
     });
 }
 
 function varrer(lat, lng) {
-  document.getElementById('status-gps').innerText = '🔍 Carregando restaurantes próximos...';
+  document.getElementById('status-gps').innerText = '⚡ Fazendo varredura ultra-rápida (5km)...';
 
-  // Busca ampla: nodes + ways + relations, todos tipos alimentação, raio 3km real
-  const query = `[out:json][timeout:30];
+  // Varredura limpa e otimizada em 5km reais (5000 metros)
+  const query = `[out:json][timeout:15];
 (
-  node["amenity"~"restaurant|fast_food|cafe|bakery|bar|pub|food_court|ice_cream|juice_bar|biergarten"](around:3000,${lat},${lng});
-  way["amenity"~"restaurant|fast_food|cafe|bakery|bar|pub|food_court|ice_cream|juice_bar"](around:3000,${lat},${lng});
-  node["cuisine"](around:3000,${lat},${lng});
-  node["shop"~"bakery|deli|pastry|confectionery|butcher"](around:3000,${lat},${lng});
+  node["amenity"~"restaurant|fast_food|cafe|bakery|bar|food_court"](around:5000,${lat},${lng});
+  way["amenity"~"restaurant|fast_food|cafe|bakery|bar|food_court"](around:5000,${lat},${lng});
 );
 out center body;`;
 
@@ -436,190 +408,119 @@ out center body;`;
       const vistos = new Set();
       listaLocais = d.elements
         .filter(l => {
-          // Pega coordenada: nodes têm lat/lon direto, ways têm center
           const lt = l.lat || (l.center && l.center.lat);
           const ln = l.lon || (l.center && l.center.lon);
-          if (!lt || !ln) return false;
-          // Só inclui os que têm nome
-          if (!l.tags || !l.tags.name) return false;
-          // Deduplicar por nome+coords arredondadas
-          const key = l.tags.name + '|' + parseFloat(lt).toFixed(3) + ',' + parseFloat(ln).toFixed(3);
+          if (!lt || !ln || !l.tags || !l.tags.name) return false;
+          
+          const key = l.tags.name.toLowerCase() + '|' + parseFloat(lt).toFixed(3) + ',' + parseFloat(ln).toFixed(3);
           if (vistos.has(key)) return false;
           vistos.add(key);
-          // Garante raio real ≤ 3km
+          
           l._lat = parseFloat(lt);
           l._lon = parseFloat(ln);
           l._dist = dist(lat, lng, l._lat, l._lon);
-          return l._dist <= 3.0;
+          return l._dist <= 5.0; // Filtro de 5km ativo
         })
         .sort((a, b) => a._dist - b._dist);
 
-      renderizar(listaLocais);
-      document.getElementById('status-gps').innerText = `🍿 ${listaLocais.length} opções em até 3km de você!`;
+      renderizarImediato(listaLocais);
     } else {
-      document.getElementById('msg-carregando').innerText = 'Nenhum restaurante encontrado próximo.';
+      document.getElementById('msg-carregando').innerText = 'Nenhum restaurante em até 5km.';
     }
   })
-  .catch(e => {
-    console.error(e);
-    document.getElementById('msg-carregando').innerText = 'Erro ao carregar. Recarregue a página.';
+  .catch(() => {
+    document.getElementById('msg-carregando').innerText = 'Servidor carregado. Atualize a página.';
   });
 }
 
-async function renderizar(locais) {
+function renderizarImediato(locais) {
   const el = document.getElementById('lista');
   el.innerHTML='';
 
+  locais.forEach(l => {
+    const nome = l.tags.name;
+    const amenity = l.tags.amenity || 'restaurant';
+    const d = l._dist;
+    const t = Math.max(2, Math.round(d * 4)); // Média de tempo com trânsito de bairro
 
-  const formatados = locais.map(l=>{
-    const nome = l.tags.name || 'Comércio de Comida';
-    // amenity pode ser shop para padarias/delicatessen
-    const amenity = l.tags.amenity || (l.tags.shop ? 'bakery' : 'restaurant');
-    const lat  = l._lat  !== undefined ? l._lat  : parseFloat(l.lat);
-    const lon  = l._lon  !== undefined ? l._lon  : parseFloat(l.lon);
-    const d    = l._dist !== undefined ? l._dist : dist(minhaLat, minhaLng, lat, lon);
-    const t    = Math.max(2, Math.round(d * 3.5));
-    return { nome, amenity, d, t, foto:getFoto(nome,amenity), preco:getPreco(nome,amenity), lat, lon, tags:l.tags, bairro:'' };
-  });
-
-  // Renderiza imediatamente (sem bairro) e vai preenchendo conforme as geocodificações chegam
-  formatados.forEach(l => criarCard(el, l));
-
-  // Agrupa coords próximas (raio 300m) para reaproveitar mesma geocodificação
-  // e respeita rate limit Nominatim: 1 req/s
-  function coordKey(lat, lon) {
-    // Arredonda a ~110m para agrupar pontos muito próximos
-    return (Math.round(lat * 1000) / 1000) + ',' + (Math.round(lon * 1000) / 1000);
-  }
-
-  // Descobre quais coords únicas precisam ser buscadas
-  const coordsUnicas = [];
-  const coordsMap = {}; // coordKey -> bairro (preenchido depois)
-  for (const l of formatados) {
-    const ck = coordKey(l.lat, l.lon);
-    if (!(ck in bairroCache) && !coordsUnicas.find(c => c.key === ck)) {
-      // Tenta tags OSM primeiro
-      const tagB = l.tags['addr:suburb'] || l.tags['addr:neighbourhood'] ||
-                   l.tags['addr:quarter'] || l.tags['addr:city_district'] || '';
-      if (tagB) {
-        bairroCache[ck] = tagB;
-      } else {
-        coordsUnicas.push({ key: ck, lat: l.lat, lon: l.lon });
-      }
+    // Pega bairro ou rua direto da base do mapa sem fazer requisições lentas extras
+    const bairroMapa = l.tags['addr:suburb'] || l.tags['addr:neighbourhood'] || '';
+    const ruaMapa = l.tags['addr:street'] || '';
+    
+    let localizacao = '';
+    if(bairroMapa) localizacao = `📌 ${bairroMapa}`;
+    else if(ruaMapa) localizacao = `🛣️ ${ruaMapa}`;
+    else {
+      localizacao = ({restaurant:'🍛 Restaurante', fast_food:'🍔 Fast Food', cafe:'☕ Café', bakery:'🥐 Padaria'})[amenity] || '🍽️ Comida';
     }
-  }
 
-  // Geocodifica 1 por 1 com 1.2s de intervalo
-  for (const c of coordsUnicas) {
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${c.lat}&lon=${c.lon}&zoom=17&addressdetails=1`;
-      const r = await fetch(url, { headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' } });
-      const data = await r.json();
-      const a = data.address || {};
-      bairroCache[c.key] = a.suburb || a.neighbourhood || a.quarter ||
-                           a.city_district || a.district || a.town || a.city || '';
-    } catch(e) {
-      bairroCache[c.key] = '';
-    }
-    // Atualiza todos os cards que usam essa coordenada
-    for (const l of formatados) {
-      if (coordKey(l.lat, l.lon) === c.key) {
-        l.bairro = bairroCache[c.key];
-        const cardEl = document.querySelector(`.card[data-id="${l.lat}_${l.lon}"]`);
-        if (cardEl) {
-          const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
-          const subLabel = l.bairro ? '📌 ' + l.bairro : tipoLabel;
-          const tipoEl = cardEl.querySelector('.card-tipo');
-          if (tipoEl) tipoEl.textContent = subLabel;
-        }
-      }
-    }
-    await new Promise(r => setTimeout(r, 1200));
-  }
+    const foto = getFoto(nome, amenity);
+    const preco = getPreco(nome, amenity);
 
-  // Aplica bairros já cacheados imediatamente (sem esperar)
-  for (const l of formatados) {
-    const ck = coordKey(l.lat, l.lon);
-    if (bairroCache[ck] && !l.bairro) {
-      l.bairro = bairroCache[ck];
-      const cardEl = document.querySelector(`.card[data-id="${l.lat}_${l.lon}"]`);
-      if (cardEl) {
-        const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
-        const subLabel = l.bairro ? '📌 ' + l.bairro : tipoLabel;
-        const tipoEl = cardEl.querySelector('.card-tipo');
-        if (tipoEl) tipoEl.textContent = subLabel;
-      }
-    }
-  }
-}
+    const div = document.createElement('div');
+    div.className = `card preco-${preco.nivel}`;
+    div.setAttribute('data-tipo', amenity);
+    div.setAttribute('data-nome', nome.toLowerCase());
 
-function criarCard(container, l) {
-  const div=document.createElement('div');
-  div.className=`card preco-${l.preco.nivel}`;
-  div.setAttribute('data-tipo',l.amenity);
-  div.setAttribute('data-nome',l.nome.toLowerCase());
-  div.setAttribute('data-id', `${l.lat}_${l.lon}`);
-
-  const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
-
-  div.innerHTML=`
-    <img class="card-img" src="${l.foto}" alt="${l.nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
-    <div class="card-body">
-      <div class="card-top">
-        <div>
-          <div class="card-nome">${l.nome}</div>
-          <div class="card-tipo">${tipoLabel}</div>
+    div.innerHTML = `
+      <img class="card-img" src="${foto}" alt="${nome}" loading="lazy" onerror="this.src='${FOTOS.default}'">
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-nome">${nome}</div>
+            <div class="card-tipo">${localizacao}</div>
+          </div>
+          <div class="preco-dot dot-${preco.nivel}"></div>
         </div>
-        <div class="preco-dot dot-${l.preco.nivel}"></div>
-      </div>
-      <div class="card-bottom">
-        <span>📍 ${l.d.toFixed(1)} km</span>
-        <span>🕒 ~${l.t} min</span>
-      </div>
-    </div>`;
+        <div class="card-bottom">
+          <span>📍 ${d.toFixed(1)} km</span>
+          <span>🕒 ~${t} min</span>
+        </div>
+      </div>`;
 
-  div.onclick=()=>abrirModal(l);
-  container.appendChild(div);
+    div.onclick = () => abrirModal(nome, amenity, preco, d, t);
+    el.appendChild(div);
+  });
+
+  document.getElementById('status-gps').innerText = `🍿 ${locais.length} locais encontrados em até 5km!`;
 }
 
-// ── Filtro ───────────────────────────────────────────────────────────────────
 function filtrar(cat, btn) {
-  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  document.querySelectorAll('.card').forEach(c=>{
-    if(cat==='todos'){ c.style.display='flex'; return; }
-    const regex=new RegExp(cat);
-    c.style.display=(regex.test(c.dataset.tipo)||regex.test(c.dataset.nome))?'flex':'none';
+  document.querySelectorAll('.card').forEach(c => {
+    if(cat === 'todos') { c.style.display = 'flex'; return; }
+    const regex = new RegExp(cat);
+    c.style.display = (regex.test(c.dataset.tipo) || regex.test(c.dataset.nome)) ? 'flex' : 'none';
   });
 }
 
-// ── Modal ────────────────────────────────────────────────────────────────────
-function abrirModal(l) {
-  const tipoLabel = ({restaurant:'🍛 Restaurante',fast_food:'🍔 Lanche / Fast Food',cafe:'☕ Café / Sobremesa',bakery:'🥐 Padaria / Doceria'})[l.amenity]||'🍽 Alimentação';
+function abrirModal(nome, amenity, preco, d, t) {
+  const tipoLabel = ({restaurant:'🍛 Restaurante', fast_food:'🍔 Lanche / Fast Food', cafe:'☕ Café / Sobremesa', bakery:'🥐 Padaria / Doceria'})[amenity] || '🍽 Alimentação';
 
-  document.getElementById('m-titulo').innerText = l.nome;
+  document.getElementById('m-titulo').innerText = nome;
   document.getElementById('m-subtipo').innerText = tipoLabel;
 
   const bar = document.getElementById('m-preco-bar');
-  bar.className = `modal-preco-bar ${l.preco.barClass}`;
-  bar.innerText = l.preco.txt;
+  bar.className = `modal-preco-bar ${preco.barClass}`;
+  bar.innerText = preco.txt;
 
-  document.getElementById('m-distancia').innerHTML = `📍 ${l.d.toFixed(1)} km de distância &nbsp;·&nbsp; 🕒 ~${l.t} min de carro`;
+  document.getElementById('m-distancia').innerHTML = `📍 ${d.toFixed(1)} km de distância &nbsp;·&nbsp; 🕒 ~${t} min de percurso`;
 
-  const q = encodeURIComponent(l.nome);
-  const qLocal = encodeURIComponent(l.nome + ' Guarulhos');
+  const q = encodeURIComponent(nome);
+  const qLocal = encodeURIComponent(nome + ' Guarulhos');
   document.getElementById('btn-ifood').href  = `https://www.ifood.com.br/busca?q=${q}`;
   document.getElementById('btn-keeta').href  = `https://keeta.com.br/busca?q=${q}`;
   document.getElementById('btn-99').href     = `https://www.99app.com/food?q=${q}`;
   document.getElementById('btn-google').href = `https://www.google.com/search?q=${qLocal}+cardapio+fotos`;
 
   document.getElementById('modal').classList.add('active');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
 
 function fecharModal() {
   document.getElementById('modal').classList.remove('active');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 </script>
 </body>
